@@ -47,6 +47,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _moveSpeed: 5
   _deadZone: 0.1
+  _rotationSpeed: 180
   _animator: {fileID: 4534675491650879233}
 --- !u!1001 &8035814801433526928
 PrefabInstance:
@@ -104,6 +105,10 @@ PrefabInstance:
       propertyPath: m_Controller
       value: 
       objectReference: {fileID: 9100000, guid: ef603eeaa44ea6849aad32b633aa524a, type: 2}
+    - target: {fileID: 5866666021909216657, guid: d2a140cb28c5e2143b03e1a6cb01e258, type: 3}
+      propertyPath: m_ApplyRootMotion
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

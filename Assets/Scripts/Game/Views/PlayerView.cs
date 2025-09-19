@@ -6,6 +6,7 @@ namespace Game.Views
     public class PlayerView : MonoBehaviour
     {
         //  MEMBERS
+        //      Editor
         [Header("Movement Settings")]
         [SerializeField] private float _moveSpeed       = 5f;
         [SerializeField] private float _deadZone        = 0.1f;
@@ -14,12 +15,11 @@ namespace Game.Views
         [Header("References")]
         [SerializeField] private Animator _animator;
         
-        // Input variables
+        //      Private
         private Vector2 _movementVector;
         private Vector2 _rotationVector;
         private float   _currentSpeed;
         
-        // Direction vectors for our 4 animations
         private readonly Vector2[] directions = {
             Vector2.up,     // 0: Forward
             Vector2.right,  // 1: Right  
