@@ -1,0 +1,37 @@
+# ========== Unity ==========
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+UserSettings/
+MemoryCaptures/
+*.csproj
+*.unityproj
+*.sln
+*.suo
+*.tmp
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Visual Studio / Rider / VS Code
+.vscode/
+.vs/
+.idea/
+
+# Crash and profiler data
+*.stacktrace
+
+# Unity-generated Crash reports
+sysinfo.txt
