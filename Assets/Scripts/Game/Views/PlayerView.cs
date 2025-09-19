@@ -73,18 +73,24 @@ namespace Game.Views
             {
                 _movementVector = _movementVector.normalized;
             }
+
+            // Attack input
+            if (Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.Space))
+            {
+                _animator.SetTrigger(PlayerAnimationParameters.ATTACK);
+            }
         }
         
         private void UpdateAnimator()
         {
-            _animator.SetFloat(PlayerMovementConstants.SPEED_PARAM,     _currentSpeed);
-            _animator.SetFloat(PlayerMovementConstants.INPUT_X_PARAM,   _movementVector.x);
-            _animator.SetFloat(PlayerMovementConstants.INPUT_Y_PARAM,   _movementVector.y);
+            _animator.SetFloat(PlayerAnimationParameters.SPEED,     _currentSpeed);
+            _animator.SetFloat(PlayerAnimationParameters.INPUT_X,   _movementVector.x);
+            _animator.SetFloat(PlayerAnimationParameters.INPUT_Y,   _movementVector.y);
             
             if (_currentSpeed > _deadZone)
             {
                 int closestDirection = GetClosestDirection(_movementVector);
-                _animator.SetInteger(PlayerMovementConstants.DIRECTION_PARAM, closestDirection);
+                _animator.SetInteger(PlayerAnimationParameters.DIRECTION, closestDirection);
             }
         }
         
@@ -93,7 +99,6 @@ namespace Game.Views
             float dotProduct = -1f;
             int closestDirection = 0;
             
-            // Find which direction vector is closest to our input
             for (int i = 0; i < directions.Length; i++)
             {
                 float dot = Vector2.Dot(input, directions[i]);
@@ -109,17 +114,16 @@ namespace Game.Views
 
         private void MovePlayer()
         {
-            // Handle rotation first
+            // Rotation
             if (Mathf.Abs(_rotationVector.x) > _deadZone)
             {
                 float rotationAmount = _rotationVector.x * _rotationSpeed * Time.deltaTime;
                 transform.Rotate(0, rotationAmount, 0);
             }
             
-            // Move the player relative to current facing direction
+            // Movement
             if (_currentSpeed > _deadZone)
             {
-                // Movement is now relative to the character's current rotation
                 Vector3 localMovement = new Vector3(_movementVector.x, 0, _movementVector.y);
                 Vector3 worldMovement = transform.TransformDirection(localMovement) * _moveSpeed * Time.deltaTime;
                 transform.Translate(worldMovement, Space.World);
