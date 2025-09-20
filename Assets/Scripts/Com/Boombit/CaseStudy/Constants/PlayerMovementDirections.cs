@@ -1,4 +1,4 @@
-namespace Game.Constants
+namespace Com.Boombit.CaseStudy.Constants
 {
     public enum PlayerMovementDirections
     {

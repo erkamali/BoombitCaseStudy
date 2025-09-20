@@ -1,7 +1,7 @@
-using Game.Constants;
 using UnityEngine;
+using Com.Boombit.CaseStudy.Constants;
 
-namespace Game.Views
+namespace Com.Boombit.CaseStudy.Views
 {
     public class PlayerView : MonoBehaviour
     {

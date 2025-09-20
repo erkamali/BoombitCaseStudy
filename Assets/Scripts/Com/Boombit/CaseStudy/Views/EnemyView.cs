@@ -1,8 +1,8 @@
-using Game.Constants;
 using UnityEngine;
 using UnityEngine.AI;
+using Com.Boombit.CaseStudy.Constants;
 
-namespace Game.Views
+namespace Com.Boombit.CaseStudy.Views
 {
     [RequireComponent(typeof(NavMeshAgent))]
     public class EnemyView : MonoBehaviour
