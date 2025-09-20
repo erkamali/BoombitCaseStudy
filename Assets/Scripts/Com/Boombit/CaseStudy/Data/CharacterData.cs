@@ -19,7 +19,6 @@ namespace Com.Boombit.CaseStudy.Data
         [Header("Combat")]
         [SerializeField] protected float _attackDamage = 10f;
         [SerializeField] protected float _attackRange = 2f;
-        [SerializeField] protected float _attackCooldown = 1f;
         
         // Events
         public event Action OnDamageTaken;
@@ -32,7 +31,6 @@ namespace Com.Boombit.CaseStudy.Data
         public float RotationSpeed  { get { return _rotationSpeed; } }
         public float AttackDamage   { get { return _attackDamage; } }
         public float AttackRange    { get { return _attackRange; } }
-        public float AttackCooldown { get { return _attackCooldown; } }
         
         public bool IsDead => _currentHealth <= 0f;
         public float HealthPercentage => _currentHealth / _maxHealth;

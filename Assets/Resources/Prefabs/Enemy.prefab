@@ -9,6 +9,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2327507142047633386}
+  - component: {fileID: 9157631392723735875}
+  - component: {fileID: 2169538673517874154}
   m_Layer: 0
   m_Name: Enemy
   m_TagString: Untagged
@@ -32,6 +34,42 @@ Transform:
   - {fileID: 8426949728171274118}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!195 &9157631392723735875
+NavMeshAgent:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1749856396249671880}
+  m_Enabled: 1
+  m_AgentTypeID: 0
+  m_Radius: 0.5
+  m_Speed: 3.5
+  m_Acceleration: 8
+  avoidancePriority: 50
+  m_AngularSpeed: 120
+  m_StoppingDistance: 1.5
+  m_AutoTraverseOffMeshLink: 1
+  m_AutoBraking: 1
+  m_AutoRepath: 1
+  m_Height: 2
+  m_BaseOffset: 0
+  m_WalkableMask: 4294967295
+  m_ObstacleAvoidanceType: 4
+--- !u!114 &2169538673517874154
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1749856396249671880}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 81fdb5d981f047d45938f39eddeebcc8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _characterData: {fileID: 11400000, guid: 6fe1f3367938734469dc64e35e3627d1, type: 2}
+  _animator: {fileID: 2455208321201010172}
 --- !u!1001 &8320456782887798893
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -85,6 +123,10 @@ PrefabInstance:
       value: enemy
       objectReference: {fileID: 0}
     - target: {fileID: 5866666021909216657, guid: 62368ece1c6e8e645adccacd2691d46f, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: 6fbd2fc81bd658a478bbc8c8e38d55e3, type: 2}
+    - target: {fileID: 5866666021909216657, guid: 62368ece1c6e8e645adccacd2691d46f, type: 3}
       propertyPath: m_ApplyRootMotion
       value: 0
       objectReference: {fileID: 0}
@@ -93,6 +135,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 62368ece1c6e8e645adccacd2691d46f, type: 3}
+--- !u!95 &2455208321201010172 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 5866666021909216657, guid: 62368ece1c6e8e645adccacd2691d46f, type: 3}
+  m_PrefabInstance: {fileID: 8320456782887798893}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &8426949728171274118 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 62368ece1c6e8e645adccacd2691d46f, type: 3}

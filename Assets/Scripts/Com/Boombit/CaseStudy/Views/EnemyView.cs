@@ -12,7 +12,6 @@ namespace Com.Boombit.CaseStudy.Views
         //      Editor
         [Header("References")]
         [SerializeField] private Animator _animator;
-        [SerializeField] private Transform _player;
         
         //      Private
         private NavMeshAgent _navmeshAgent;
@@ -21,6 +20,7 @@ namespace Com.Boombit.CaseStudy.Views
         private float _lastPathUpdate;
         private bool _isAttacking = false;
 
+        private Transform _player;
         private EnemyData _enemyData;
         
         //  METHODS
@@ -32,6 +32,7 @@ namespace Com.Boombit.CaseStudy.Views
             
             InitComponents();
             SetupNavMeshAgent();
+            FindPlayer();
             
             _lastAttackTime = -_enemyData.AttackCooldown;
             _lastPathUpdate = -_enemyData.PathUpdatePeriod;
@@ -39,7 +40,7 @@ namespace Com.Boombit.CaseStudy.Views
 
         void InitComponents()
         {
-            _animator = GetComponent<Animator>();
+            //_animator = GetComponent<Animator>();
             _navmeshAgent = GetComponent<NavMeshAgent>();
         }
 
@@ -49,6 +50,19 @@ namespace Com.Boombit.CaseStudy.Views
             _navmeshAgent.stoppingDistance  = _enemyData.AttackRange * 0.8f;
             _navmeshAgent.acceleration      = 12f;
             _navmeshAgent.angularSpeed      = _enemyData.RotationSpeed;
+        }
+
+        void FindPlayer()
+        {
+            GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
+            if (playerObj != null)
+            {
+                _player = playerObj.transform;
+            }
+            else
+            {
+                Debug.LogError("No player found. Check Player prefab tag.");
+            }
         }
         
         void Update()

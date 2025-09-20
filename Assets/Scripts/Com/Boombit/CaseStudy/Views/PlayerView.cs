@@ -34,7 +34,7 @@ namespace Com.Boombit.CaseStudy.Views
             _playerData = (PlayerData)CharacterData;
             _deadZone = _playerData.InputDeadZone;
             
-            _animator = GetComponent<Animator>();
+            //_animator = GetComponent<Animator>();
         }
         
         void Update()
