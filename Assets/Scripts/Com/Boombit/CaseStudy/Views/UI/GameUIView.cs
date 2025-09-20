@@ -11,6 +11,7 @@ namespace Com.Boombit.CaseStudy.Views
         [Header("UI Elements")]
         [SerializeField] private Button     _pauseButton;
         [SerializeField] private TMP_Text   _currentLevelKillCountText;
+        [SerializeField] private TMP_Text   _totalKillCountText;
         [SerializeField] private TMP_Text   _currentLevelText;
         
         [Header("Timer UI")]
@@ -47,6 +48,7 @@ namespace Com.Boombit.CaseStudy.Views
         private void UpdateGameplayUI()
         {
             _currentLevelKillCountText.text = $"Kills: {_gameManager.GameData.CurrentLevelKills}";    
+            _totalKillCountText.text        = $"Kills: {_gameManager.GameData.TotalKills}";    
             _currentLevelText.text          = $"Level: {_gameManager.GameData.CurrentLevel}";
         }
         
