@@ -19,13 +19,13 @@ namespace Com.Boombit.CaseStudy.Utilities
         private bool    _isTimerRunning = false;
         
         //      Events
-        public static event Action          OnTimerFinished;
+        public static event Action  OnTimerFinished;
 
         //  METHODS
-        private void Init(float duration)
+        public void Init(float duration)
         {
-            _levelDuration = duration;
-            _currentTime = duration;
+            _levelDuration  = duration;
+            _currentTime    = duration;
             _isTimerRunning = false;
             UpdateUI();
         }
@@ -55,6 +55,7 @@ namespace Com.Boombit.CaseStudy.Utilities
         public void PauseTimer()
         {
             _isTimerRunning = false;
+            Time.timeScale = 0f;
         }
 
         public void ResumeTimer()
@@ -62,6 +63,7 @@ namespace Com.Boombit.CaseStudy.Utilities
             if (_currentTime > 0)
             {
                 _isTimerRunning = true;
+                Time.timeScale = 1f;
             }
         }
 
@@ -69,7 +71,18 @@ namespace Com.Boombit.CaseStudy.Utilities
         {
             _isTimerRunning = false;
             _currentTime = 0;
+            Time.timeScale = 1f;
             UpdateUI();
+        }
+
+        public void FreezeGame()
+        {
+            Time.timeScale = 0f;
+        }
+
+        public void UnfreezeGame()
+        {
+            Time.timeScale = 1f;
         }
 
         private void UpdateUI()
