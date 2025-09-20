@@ -1,69 +1,64 @@
 using UnityEngine;
 using UnityEngine.AI;
 using Com.Boombit.CaseStudy.Constants;
+using Com.Boombit.CaseStudy.Data;
 
 namespace Com.Boombit.CaseStudy.Views
 {
     [RequireComponent(typeof(NavMeshAgent))]
-    public class EnemyView : MonoBehaviour
+    public class EnemyView : CharacterView
     {
         //  MEMBERS
         //      Editor
-        [Header("AI Settings")]
-        [SerializeField] private float _followSpeed = 3f;
-        [SerializeField] private float _attackRange = 2f;
-        [SerializeField] private float _attackCooldown = 2f;
-        [SerializeField] private float _rotationSpeed = 360f;
-        [SerializeField] private float _pathUpdatePeriod = 0.2f; // How often to recalculate path to player
-        
         [Header("References")]
         [SerializeField] private Animator _animator;
-        [SerializeField] private Transform _player; // Drag your player here, or we'll find it automatically
+        [SerializeField] private Transform _player;
         
         //      Private
         private NavMeshAgent _navmeshAgent;
         private float _distanceToPlayer;
         private float _lastAttackTime;
         private float _lastPathUpdate;
-        private bool _isDead = false;
         private bool _isAttacking = false;
+
+        private EnemyData _enemyData;
         
         //  METHODS
-        void Start()
+        protected override void Start()
         {
-            if (_animator == null)
-            {
-                _animator = GetComponent<Animator>();
-            }
-                
-            if (_navmeshAgent == null)
-            {
-                _navmeshAgent = GetComponent<NavMeshAgent>();
-            }
+            base.Start();
             
-            // Configure NavMeshAgent
-            _navmeshAgent.speed = _followSpeed;
-            _navmeshAgent.stoppingDistance = _attackRange * 0.8f; // Stop slightly before attack range
-            _navmeshAgent.acceleration = 12f;
-            _navmeshAgent.angularSpeed = _rotationSpeed;
+            _enemyData = (EnemyData)CharacterData;
             
-            // Find player automatically if not assigned
-            if (_player == null)
-            {
-                GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
-                if (playerObj != null)
-                    _player = playerObj.transform;
-                else
-                    Debug.LogError("No player found! Make sure player has 'Player' tag or assign manually.");
-            }
+            InitComponents();
+            SetupNavMeshAgent();
             
-            _lastAttackTime = -_attackCooldown; // Allow immediate first attack
-            _lastPathUpdate = -_pathUpdatePeriod; // Allow immediate first path calculation
+            _lastAttackTime = -_enemyData.AttackCooldown;
+            _lastPathUpdate = -_enemyData.PathUpdatePeriod;
+        }
+
+        void InitComponents()
+        {
+            _animator = GetComponent<Animator>();
+            _navmeshAgent = GetComponent<NavMeshAgent>();
+        }
+
+        void SetupNavMeshAgent()
+        {
+            _navmeshAgent.speed             = _enemyData.MoveSpeed;
+            _navmeshAgent.stoppingDistance  = _enemyData.AttackRange * 0.8f;
+            _navmeshAgent.acceleration      = 12f;
+            _navmeshAgent.angularSpeed      = _enemyData.RotationSpeed;
         }
         
         void Update()
         {
-            if (_isDead || _player == null || _navmeshAgent == null) return;
+            if (_enemyData.IsDead || 
+                _player == null   || 
+                _navmeshAgent == null)
+            {
+                return;
+            }
             
             CalculateDistanceToPlayer();
             HandleAI();
@@ -78,7 +73,8 @@ namespace Com.Boombit.CaseStudy.Views
         void HandleAI()
         {
             // Check if we should attack
-            if (_distanceToPlayer <= _attackRange && Time.time >= _lastAttackTime + _attackCooldown)
+            if (_distanceToPlayer <= _enemyData.AttackRange && 
+                Time.time >= _lastAttackTime + _enemyData.AttackCooldown)
             {
                 AttackPlayer();
             }
@@ -91,10 +87,10 @@ namespace Com.Boombit.CaseStudy.Views
         
         void FollowPlayer()
         {
-            // Update path to player periodically (not every frame for performance)
-            if (Time.time >= _lastPathUpdate + _pathUpdatePeriod)
+            // Set path to player
+            if (Time.time >= _lastPathUpdate + _enemyData.PathUpdatePeriod)
             {
-                if (_distanceToPlayer > _attackRange)
+                if (_distanceToPlayer > _enemyData.AttackRange)
                 {
                     _navmeshAgent.SetDestination(_player.position);
                 }
@@ -106,8 +102,7 @@ namespace Com.Boombit.CaseStudy.Views
                 _lastPathUpdate = Time.time;
             }
             
-            // Rotate to face player when close (NavMesh handles rotation while moving)
-            if (_distanceToPlayer <= _attackRange + 1f)
+            if (_distanceToPlayer <= _enemyData.AttackRange + 1f)
             {
                 LookAtPlayer();
             }
@@ -116,12 +111,12 @@ namespace Com.Boombit.CaseStudy.Views
         void LookAtPlayer()
         {
             Vector3 lookDirection = _player.position - transform.position;
-            lookDirection.y = 0; // Keep only horizontal rotation
+            lookDirection.y = 0;
             
             if (lookDirection != Vector3.zero)
             {
                 Quaternion targetRotation = Quaternion.LookRotation(lookDirection);
-                transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, _rotationSpeed * Time.deltaTime);
+                transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, _enemyData.RotationSpeed * Time.deltaTime);
             }
         }
         
@@ -130,11 +125,9 @@ namespace Com.Boombit.CaseStudy.Views
             _isAttacking = true;
             _lastAttackTime = Time.time;
             
-            // Stop moving during attack
             _navmeshAgent.ResetPath();
             _navmeshAgent.velocity = Vector3.zero;
             
-            // Face player and attack
             LookAtPlayer();
             _animator.SetTrigger(EnemyAnimationParameters.ATTACK);
             
@@ -149,32 +142,30 @@ namespace Com.Boombit.CaseStudy.Views
         
         void UpdateAnimator()
         {
-            // Set speed parameter based on NavMeshAgent velocity
             float currentSpeed = _navmeshAgent.velocity.magnitude;
             _animator.SetFloat(EnemyAnimationParameters.SPEED, currentSpeed);
         }
         
-        public void Die()
+        public override void Die()
         {
-            if (_isDead) return;
-            
-            _isDead = true;
+            Debug.Log("Enemy died!");
+
             _animator.SetTrigger(EnemyAnimationParameters.DIE);
             _animator.SetBool(EnemyAnimationParameters.IS_DEAD, true);
             
-            // Stop NavMesh movement
             if (_navmeshAgent != null)
             {
                 _navmeshAgent.ResetPath();
                 _navmeshAgent.enabled = false;
             }
             
-            // Disable AI behavior
             this.enabled = false;
             
-            // Optional: Disable collider so player can walk through
-            Collider col = GetComponent<Collider>();
-            if (col != null) col.enabled = false;
+            Collider collider = GetComponent<Collider>();
+            if (collider != null)
+            {
+                collider.enabled = false;
+            }
         }
     }
 }

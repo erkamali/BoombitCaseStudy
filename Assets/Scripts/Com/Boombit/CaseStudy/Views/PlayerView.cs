@@ -1,17 +1,13 @@
 using UnityEngine;
 using Com.Boombit.CaseStudy.Constants;
+using Com.Boombit.CaseStudy.Data;
 
 namespace Com.Boombit.CaseStudy.Views
 {
-    public class PlayerView : MonoBehaviour
+    public class PlayerView : CharacterView
     {
         //  MEMBERS
         //      Editor
-        [Header("Movement Settings")]
-        [SerializeField] private float _moveSpeed       = 5f;
-        [SerializeField] private float _deadZone        = 0.1f;
-        [SerializeField] private float _rotationSpeed   = 180f;
-        
         [Header("References")]
         [SerializeField] private Animator _animator;
         
@@ -19,6 +15,9 @@ namespace Com.Boombit.CaseStudy.Views
         private Vector2 _movementVector;
         private Vector2 _rotationVector;
         private float   _currentSpeed;
+        private float   _deadZone;
+
+        private PlayerData _playerData;
         
         private readonly Vector2[] directions = {
             Vector2.up,     // 0: Forward
@@ -28,16 +27,23 @@ namespace Com.Boombit.CaseStudy.Views
         };
         
         //  METHODS
-        void Start()
+        protected override void Start()
         {
-            if (_animator == null)
-            {
-                _animator = GetComponent<Animator>();
-            }
+            base.Start();
+            
+            _playerData = (PlayerData)CharacterData;
+            _deadZone = _playerData.InputDeadZone;
+            
+            _animator = GetComponent<Animator>();
         }
         
         void Update()
         {
+            if (_playerData.IsDead)
+            {
+                return;
+            }
+
             HandleInput();
             UpdateAnimator();
             MovePlayer();
@@ -117,7 +123,7 @@ namespace Com.Boombit.CaseStudy.Views
             // Rotation
             if (Mathf.Abs(_rotationVector.x) > _deadZone)
             {
-                float rotationAmount = _rotationVector.x * _rotationSpeed * Time.deltaTime;
+                float rotationAmount = _rotationVector.x * _playerData.RotationSpeed * Time.deltaTime;
                 transform.Rotate(0, rotationAmount, 0);
             }
             
@@ -125,7 +131,7 @@ namespace Com.Boombit.CaseStudy.Views
             if (_currentSpeed > _deadZone)
             {
                 Vector3 localMovement = new Vector3(_movementVector.x, 0, _movementVector.y);
-                Vector3 worldMovement = transform.TransformDirection(localMovement) * _moveSpeed * Time.deltaTime;
+                Vector3 worldMovement = transform.TransformDirection(localMovement) * _playerData.MoveSpeed * Time.deltaTime;
                 transform.Translate(worldMovement, Space.World);
             }
         }
@@ -134,5 +140,21 @@ namespace Com.Boombit.CaseStudy.Views
         {
             return directions[(int)movementDirection];
         }
+
+        #region ICharacterView implementations
+
+        public override void TakeDamage(float damage)
+        {
+            base.TakeDamage(damage);
+        }
+
+        public override void Die()
+        {
+            Debug.Log("Player died");
+            
+            this.enabled = false;
+        }
+
+#endregion
     }
 }
