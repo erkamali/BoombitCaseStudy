@@ -19,3 +19,4 @@ MonoBehaviour:
   _attackDamage: 10
   _attackRange: 2
   _inputDeadZone: 0.1
+  _weaponFireRate: 0.5

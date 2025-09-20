@@ -7,9 +7,11 @@ namespace Com.Boombit.CaseStudy.Data
     {
         //  MEMBERS
         [Header("Player Specific")]
-        [SerializeField] private float _inputDeadZone = 0.1f;
+        [SerializeField] private float _inputDeadZone   = 0.1f;
+        [SerializeField] private float _weaponFireRate  = 0.1f;
         
-        public float InputDeadZone { get { return _inputDeadZone; } }
+        public float InputDeadZone  { get { return _inputDeadZone; } }
+        public float WeaponFireRate { get { return _weaponFireRate; } }
         
         public override void Initialize()
         {

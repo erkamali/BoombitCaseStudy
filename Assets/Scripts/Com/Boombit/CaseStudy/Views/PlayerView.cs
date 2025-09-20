@@ -1,6 +1,7 @@
 using UnityEngine;
 using Com.Boombit.CaseStudy.Constants;
 using Com.Boombit.CaseStudy.Data;
+using Com.Boombit.CaseStudy.Utilities;
 
 namespace Com.Boombit.CaseStudy.Views
 {
@@ -9,13 +10,15 @@ namespace Com.Boombit.CaseStudy.Views
         //  MEMBERS
         //      Editor
         [Header("References")]
-        [SerializeField] private Animator _animator;
+        [SerializeField] private Animator   _animator;
+        [SerializeField] private Transform  _firePoint;
         
         //      Private
         private Vector2 _movementVector;
         private Vector2 _rotationVector;
         private float   _currentSpeed;
         private float   _deadZone;
+        private float   _lastFireTime;
 
         private PlayerData _playerData;
         
@@ -45,6 +48,7 @@ namespace Com.Boombit.CaseStudy.Views
             }
 
             HandleInput();
+            HandleShooting();
             UpdateAnimator();
             MovePlayer();
         }
@@ -86,7 +90,61 @@ namespace Com.Boombit.CaseStudy.Views
                 _animator.SetTrigger(PlayerAnimationParameters.ATTACK);
             }
         }
+
+#region Shooting
+
+        void HandleShooting()
+        {
+            /*
+            bool shootInput = Input.GetMouseButton(0) || 
+                              Input.GetButton("Fire1") || 
+                              Input.GetButton("Joystick button 0");
+            */
+
+            bool shootInput = Input.GetMouseButton(0) || 
+                              Input.GetButton("Fire1");
+            
+            if (shootInput && CanShoot())
+            {
+                StartCoroutine(ShootWithDelay());
+            }
+        }
+
+        private bool CanShoot()
+        {
+            return Time.time >= _lastFireTime + _playerData.WeaponFireRate;
+        }
+
+        System.Collections.IEnumerator ShootWithDelay()
+        {
+            _animator.SetTrigger("Attack");
+            
+            yield return new WaitForSeconds(0.3f);
+            
+            Shoot();
+        }
+
+        void Shoot()
+        {
+            if (BulletPool.Instance == null)
+            {
+                Debug.LogError("BulletPool not found!");
+                return;
+            }
+            
+            BulletView bullet = BulletPool.Instance.GetBullet();
+            
+            Vector3 shootDirection = transform.forward;
+            
+            bullet.Initialize(_firePoint.position, shootDirection, _playerData.AttackDamage);
+            
+            _lastFireTime = Time.time;
+            
+            // TODO: Sound effect?
+        }
         
+#endregion
+
         private void UpdateAnimator()
         {
             _animator.SetFloat(PlayerAnimationParameters.SPEED,     _currentSpeed);
