@@ -25,5 +25,21 @@ namespace Com.Boombit.CaseStudy.Utilities
         void StartEnemySpawning();
         void StopEnemySpawning();
         void StopAllEnemies();
+
+        void OnPlayerDied();
+        void OnEnemyKilled();
+
+        // Time related
+        void OnTimeUpdated(float currentTime, float normalizedTime);
+        void OnTimerFinished();
+
+        // View callbacks
+        void StartGame();
+        void PauseGame();
+        void ResumeGame();
+        void RestartLevel();
+        void NextLevel();
+        void BackToMainMenu();
+        void QuitGame();
     }
 }

@@ -1,4 +1,5 @@
 using Com.Boombit.CaseStudy.Data;
+using Com.Boombit.CaseStudy.Views;
 using UnityEngine;
 
 namespace Com.Boombit.CaseStudy.Utilities
@@ -12,12 +13,12 @@ namespace Com.Boombit.CaseStudy.Utilities
         //      Editor
         [SerializeField] private TimeManager _timeManager;
         
-        [Header("UI References")]
-        [SerializeField] private GameObject _mainMenuUIView;
-        [SerializeField] private GameObject _gameUIView;
-        [SerializeField] private GameObject _levelSuccessUIView;
-        [SerializeField] private GameObject _levelFailUIView;
-        [SerializeField] private GameObject _gamePauseUIView;
+        [Header("UIViews")]
+        [SerializeField] private MainMenuUIView     _mainMenuUIView;
+        [SerializeField] private GameUIView         _gameUIView;
+        [SerializeField] private LevelSuccessUIView _levelSuccessUIView;
+        [SerializeField] private LevelFailUIView    _levelFailUIView;
+        [SerializeField] private GamePauseUIView    _gamePauseUIView;
         
         // Private
         private StateManager                _stateManager;
@@ -34,7 +35,8 @@ namespace Com.Boombit.CaseStudy.Utilities
         {
             _gameData = new GameData();
 
-            Init();
+            InitStateManagers();
+            InitUIViews();
             SubscribeToEvents();
         }
 
@@ -48,7 +50,7 @@ namespace Com.Boombit.CaseStudy.Utilities
             _stateManager.ChangeState("MainMenu");
         }
         
-        private void Init()
+        private void InitStateManagers()
         {
             _stateManager = new StateManager();
             
@@ -64,24 +66,57 @@ namespace Com.Boombit.CaseStudy.Utilities
             _stateManager.AddHandler(_levelFailStateHandler);
             _stateManager.AddHandler(_gamePauseStateHandler);
         }
+
+        private void InitUIViews()
+        {
+            _mainMenuUIView.Init(this);
+            _gameUIView.Init(this);
+            _levelSuccessUIView.Init(this);
+            _levelFailUIView.Init(this);
+            _gamePauseUIView.Init(this);
+            
+            HideAllUIViews();
+            _mainMenuUIView.Show();
+        }
         
         private void SubscribeToEvents()
         {
-            TimeManager.OnTimerFinished += OnLevelComplete;
+            TimeManager.OnTimerFinished += OnTimerFinished;
+            TimeManager.OnTimeUpdated   += OnTimeUpdated;
         }
 
         private void UnsubscribeFromEvents()
         {
-            TimeManager.OnTimerFinished -= OnLevelComplete;
+            TimeManager.OnTimerFinished -= OnTimerFinished;
+            TimeManager.OnTimeUpdated   -= OnTimeUpdated;
         }
-        
-#region Event Handlers
-        
-        private void OnLevelComplete()
+
+        private void HideAllUIViews()
+        {
+            _mainMenuUIView.Hide();
+            _gameUIView.Hide();
+            _levelSuccessUIView.Hide();
+            _levelFailUIView.Hide();
+            _gamePauseUIView.Hide();
+        }
+
+#region TimeManager callbacks
+
+        public void OnTimerFinished()
         {
             _stateManager.ChangeState("LevelSuccessState");
         }
-        
+
+        public void OnTimeUpdated(float currentTime, float normalizedTime)
+        {
+            if (_gameUIView != null && _gameUIView.gameObject.activeInHierarchy)
+            {
+                _gameUIView.OnTimeUpdated(currentTime, normalizedTime);
+            }
+        }
+
+#endregion
+
         public void OnPlayerDied()
         {
             _stateManager.ChangeState("LevelFailState");
@@ -92,16 +127,14 @@ namespace Com.Boombit.CaseStudy.Utilities
             _gameData.IncrementKillCount();
         }
         
-#endregion
-        
 #region View callbacks
-        
-        public void OnStartGameButtonClicked()
+    
+        public void StartGame()
         {
             _stateManager.ChangeState("GameState");
         }
         
-        public void OnGamePaused()
+        public void PauseGame()
         {
             if (_stateManager.CurrentState == "GameState")
             {
@@ -109,7 +142,7 @@ namespace Com.Boombit.CaseStudy.Utilities
             }
         }
         
-        public void OnGameResumed()
+        public void ResumeGame()
         {
             if (_stateManager.CurrentState == "GamePauseState")
             {
@@ -117,20 +150,29 @@ namespace Com.Boombit.CaseStudy.Utilities
             }
         }
         
-        public void OnLevelRestarted()
+        public void RestartLevel()
         {
             _stateManager.ChangeState("GameState");
         }
         
-        public void OnNextLevelButtonClicked()
+        public void NextLevel()
         {
             _gameData.CompleteLevel();
             _stateManager.ChangeState("GameState");
         }
         
-        public void OnQuitToMainMenuButtonClicked()
+        public void BackToMainMenu()
         {
             _stateManager.ChangeState("MainMenuState");
+        }
+        
+        public void QuitGame()
+        {
+            #if UNITY_EDITOR
+                UnityEditor.EditorApplication.isPlaying = false;
+            #else
+                Application.Quit();
+            #endif
         }
         
 #endregion
@@ -139,62 +181,57 @@ namespace Com.Boombit.CaseStudy.Utilities
         
         public void ShowMainMenuUI()
         {
-            SetUIActive(_mainMenuUIView, true);
+            HideAllUIViews();
+            _mainMenuUIView.Show();
         }
         
         public void HideMainMenuUI()
         {
-            SetUIActive(_mainMenuUIView, false);
+            _mainMenuUIView.Hide();
         }
         
         public void ShowGameUI()
         {
-            SetUIActive(_gameUIView, true);
+            HideAllUIViews();
+            _gameUIView.Show();
         }
         
         public void HideGameUI()
         {
-            SetUIActive(_gameUIView, false);
+            _gameUIView.Hide();
         }
         
         public void ShowLevelSuccessUI(int levelKills, int totalKills)
         {
-            //TODO: Update level success UI text with levelKills and totalKills
-            //gameWonUI.GetComponent<GameWonUIController>().SetKillCounts(levelKills, totalKills);
-            SetUIActive(_levelSuccessUIView, true);
+            HideAllUIViews();
+            _levelSuccessUIView.Show();
+            _levelSuccessUIView.UpdateStats(levelKills, totalKills);
         }
         
         public void HideLevelSuccessUI()
         {
-            SetUIActive(_levelSuccessUIView, false);
+            _levelSuccessUIView.Hide();
         }
         
         public void ShowLevelFailUI()
         {
-            SetUIActive(_levelFailUIView, true);
+            HideAllUIViews();
+            _levelFailUIView.Show();
         }
         
         public void HideLevelFailUI()
         {
-            SetUIActive(_levelFailUIView, false);
+            _levelFailUIView.Hide();
         }
         
         public void ShowGamePauseUI()
         {
-            SetUIActive(_gamePauseUIView, true);
+            _gamePauseUIView.Show();
         }
         
         public void HideGamePauseUI()
         {
-            SetUIActive(_gamePauseUIView, false);
-        }
-        
-        private void SetUIActive(GameObject ui, bool active)
-        {
-            if (ui != null)
-            {
-                ui.SetActive(active);
-            }
+            _gamePauseUIView.Hide();
         }
         
         public void EnableControls()
@@ -267,11 +304,11 @@ namespace Com.Boombit.CaseStudy.Utilities
             {
                 if (_stateManager.CurrentState == "GameState")
                 {
-                    OnGamePaused();
+                    PauseGame();
                 }
                 else if (_stateManager.CurrentState == "GamePauseState")
                 {
-                    OnGameResumed();
+                    ResumeGame();
                 }
             }
         }

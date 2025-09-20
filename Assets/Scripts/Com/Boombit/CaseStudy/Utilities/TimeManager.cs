@@ -1,25 +1,20 @@
 using System;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace Com.Boombit.CaseStudy.Utilities
 {
     public class TimeManager : MonoBehaviour
     {
         //  MEMBERS
-        //      Editor
-        [Header("UI References")]
-        [SerializeField] private Image      _remainingTimeBar;
-        [SerializeField] private TMP_Text   _remainingTimeText;
-        
         //      Private
         private float   _levelDuration;
         private float   _currentTime;
         private bool    _isTimerRunning = false;
         
         //      Events
-        public static event Action  OnTimerFinished;
+        public static event Action                  OnTimerFinished;
+        public static event Action<float, float>    OnTimeUpdated;
 
         //  METHODS
         public void Init(float duration)
@@ -27,7 +22,9 @@ namespace Com.Boombit.CaseStudy.Utilities
             _levelDuration  = duration;
             _currentTime    = duration;
             _isTimerRunning = false;
-            UpdateUI();
+            
+            float normalizedTime = _currentTime / _levelDuration;
+            OnTimeUpdated.Invoke(_currentTime, normalizedTime);
         }
 
         private void Update()
@@ -35,7 +32,9 @@ namespace Com.Boombit.CaseStudy.Utilities
             if (_isTimerRunning && _currentTime > 0)
             {
                 _currentTime -= Time.deltaTime;
-                UpdateUI();
+                
+                float normalizedTime = _currentTime / _levelDuration;
+                OnTimeUpdated.Invoke(_currentTime, normalizedTime);
                 
                 if (_currentTime <= 0)
                 {
@@ -49,13 +48,14 @@ namespace Com.Boombit.CaseStudy.Utilities
             if (_currentTime > 0)
             {
                 _isTimerRunning = true;
+                UnfreezeGame();
             }
         }
 
         public void PauseTimer()
         {
             _isTimerRunning = false;
-            Time.timeScale = 0f;
+            FreezeGame();
         }
 
         public void ResumeTimer()
@@ -63,16 +63,17 @@ namespace Com.Boombit.CaseStudy.Utilities
             if (_currentTime > 0)
             {
                 _isTimerRunning = true;
-                Time.timeScale = 1f;
+                UnfreezeGame();
             }
         }
 
         public void StopTimer()
         {
             _isTimerRunning = false;
-            _currentTime = 0;
-            Time.timeScale = 1f;
-            UpdateUI();
+            _currentTime    = 0;
+            UnfreezeGame();
+        
+            OnTimeUpdated.Invoke(0f, 0f);
         }
 
         public void FreezeGame()
@@ -85,26 +86,31 @@ namespace Com.Boombit.CaseStudy.Utilities
             Time.timeScale = 1f;
         }
 
-        private void UpdateUI()
-        {
-            _remainingTimeBar.fillAmount = _currentTime / _levelDuration;
-
-            _remainingTimeText.text = _currentTime.ToString();
-        }
-
         private void TimerFinished()
         {
             _isTimerRunning = false;
-            _currentTime = 0;
-            UpdateUI();
+            _currentTime    = 0;
             
-            // Notify other systems that timer finished
-            OnTimerFinished?.Invoke();
+            OnTimeUpdated.Invoke(0f, 0f);
+            
+            OnTimerFinished.Invoke();
         }
 
         public float GetRemainingTime()
         {
             return _currentTime;
+        }
+
+        public float GetRemainingTimeNormalized()
+        {
+            if (_levelDuration > 0)
+            {
+                return _currentTime / _levelDuration;
+            }
+            else
+            {
+                return 0f;
+            }
         }
 
         public bool IsTimerRunning()
