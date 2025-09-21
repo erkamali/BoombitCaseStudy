@@ -1,4 +1,6 @@
+using System.Collections.Generic;
 using Com.Boombit.CaseStudy.Game.Constants;
+using Com.Boombit.CaseStudy.Main.Data;
 using UnityEngine;
 
 namespace Com.Boombit.CaseStudy.Game.Data
@@ -7,19 +9,26 @@ namespace Com.Boombit.CaseStudy.Game.Data
     {
         //  MEMBERS
         //      Properties
-        public int CurrentLevelKills    { get { return _currentLevelKillCount; } }
-        public int TotalKills           { get { return _totalKillCount; } }
-        public int CurrentLevel         { get { return _currentLevel; } }
+        public int              CurrentLevelKills   { get { return _currentLevelKillCount; } }
+        public int              TotalKills          { get { return _totalKillCount; } }
+        public int              CurrentLevel        { get { return _currentLevel; } }
+
+        public PlayerData       Player              { get { return _player; } }
+        public List<EnemyData>  Enemies             { get { return _enemies; } }
 
         //      Private
         private int _currentLevelKillCount  = 0;
         private int _totalKillCount         = 0;
         private int _currentLevel           = 1;
 
+        private PlayerData      _player;
+        private List<EnemyData> _enemies;
+
         
         //  CONSTRUCTORS
         public GameData()
         {
+            _enemies = new List<EnemyData>();
             LoadData();
         }
 
@@ -60,6 +69,39 @@ namespace Com.Boombit.CaseStudy.Game.Data
         }
 
 #endregion
+
+        public PlayerData CreatePlayer(PlayerConfig config)
+        {
+            _player = new PlayerData(
+                config.MaxHealth,
+                config.MaxHealth, // Start with full health
+                config.MoveSpeed,
+                config.RotationSpeed,
+                config.AttackDamage,
+                config.AttackRange,
+                config.InputDeadZone,
+                config.WeaponFireRate
+            );
+            
+            return _player;
+        }
+
+        public EnemyData CreateEnemy(EnemyConfig config)
+        {
+            EnemyData enemy = new EnemyData(
+                config.MaxHealth,
+                config.MaxHealth, // Start with full health
+                config.MoveSpeed,
+                config.RotationSpeed,
+                config.AttackDamage,
+                config.AttackRange,
+                config.PathUpdatePeriod,
+                config.AttackCooldown
+            );
+            
+            _enemies.Add(enemy);
+            return enemy;
+        }
         
         public void SetCurrentLevel(int level)
         {
@@ -78,6 +120,9 @@ namespace Com.Boombit.CaseStudy.Game.Data
             _currentLevelKillCount  = 0;
             _totalKillCount         = 0;
             _currentLevel           = 1;
+
+            _player = null;
+            _enemies.Clear();
             
             PlayerPrefs.DeleteKey(GameConstants.TOTAL_KILLS);
             PlayerPrefs.DeleteKey(GameConstants.CURRENT_LEVEL);

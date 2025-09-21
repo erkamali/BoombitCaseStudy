@@ -20,6 +20,9 @@ namespace Com.Boombit.CaseStudy.Game.Views
         private float   _deadZone;
         private float   _lastFireTime;
 
+        //TODO: Move this to PlayerData, controlled by GameData or such.
+        private bool    _controlsEnabled;
+
         private PlayerData _playerData;
         
         private readonly Vector2[] directions = {
@@ -43,6 +46,11 @@ namespace Com.Boombit.CaseStudy.Game.Views
         void Update()
         {
             if (_playerData.IsDead)
+            {
+                return;
+            }
+
+            if (!_controlsEnabled)
             {
                 return;
             }
@@ -95,12 +103,6 @@ namespace Com.Boombit.CaseStudy.Game.Views
 
         void HandleShooting()
         {
-            /*
-            bool shootInput = Input.GetMouseButton(0) || 
-                              Input.GetButton("Fire1") || 
-                              Input.GetButton("Joystick button 0");
-            */
-
             bool shootInput = Input.GetMouseButton(0) || 
                               Input.GetButton("Fire1");
             
@@ -199,7 +201,7 @@ namespace Com.Boombit.CaseStudy.Game.Views
             return directions[(int)movementDirection];
         }
 
-        #region ICharacterView implementations
+#region ICharacterView implementations
 
         public override void TakeDamage(float damage)
         {
@@ -214,5 +216,10 @@ namespace Com.Boombit.CaseStudy.Game.Views
         }
 
 #endregion
+
+        public void SetControlsEnabled(bool enabled)
+        {
+            _controlsEnabled = enabled;
+        }
     }
 }

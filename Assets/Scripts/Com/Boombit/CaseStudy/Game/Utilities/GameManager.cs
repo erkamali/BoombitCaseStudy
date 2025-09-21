@@ -1,5 +1,6 @@
 using Com.Boombit.CaseStudy.Game.Data;
 using Com.Boombit.CaseStudy.Game.Views;
+using Com.Boombit.CaseStudy.Main.Data;
 using UnityEngine;
 
 namespace Com.Boombit.CaseStudy.Game.Utilities
@@ -7,11 +8,9 @@ namespace Com.Boombit.CaseStudy.Game.Utilities
     public class GameManager : MonoBehaviour, IGameManager
     {
         //  MEMBERS
-        //      Properties
-        public TimeManager  TimeManager { get { return _timeManager; } }
-        public IGameData    GameData    { get { return _gameData; } }
         //      Editor
-        [SerializeField] private TimeManager _timeManager;
+        [SerializeField] private TimeManager    _timeManager;
+        [SerializeField] private LevelManager   _levelManager;
         
         [Header("UIViews")]
         [SerializeField] private MainMenuUIView     _mainMenuUIView;
@@ -19,6 +18,10 @@ namespace Com.Boombit.CaseStudy.Game.Utilities
         [SerializeField] private LevelSuccessUIView _levelSuccessUIView;
         [SerializeField] private LevelFailUIView    _levelFailUIView;
         [SerializeField] private GamePauseUIView    _gamePauseUIView;
+        
+        //      Properties
+        public TimeManager  TimeManager { get { return _timeManager; } }
+        public IGameData    GameData    { get { return _gameData; } }
         
         // Private
         private StateManager                _stateManager;
@@ -179,6 +182,7 @@ namespace Com.Boombit.CaseStudy.Game.Utilities
         
 #region IGameManager implementations
         
+        // UI related
         public void ShowMainMenuUI()
         {
             HideAllUIViews();
@@ -236,34 +240,38 @@ namespace Com.Boombit.CaseStudy.Game.Utilities
         
         public void EnableControls()
         {
-            // Enable your player movement system
-            // Example: FindObjectOfType<PlayerController>().enabled = true;
+            PlayerView playerView = FindFirstObjectByType<PlayerView>();
+            playerView.SetControlsEnabled(true);
         }
         
         public void DisableControls()
         {
-            // Disable your player movement system
-            // Example: FindObjectOfType<PlayerController>().enabled = false;
+            PlayerView playerView = FindFirstObjectByType<PlayerView>();
+            playerView.SetControlsEnabled(false);
         }
-        
+
         public void StartEnemySpawning()
         {
-            // Start your enemy spawning system
-            // Example: FindObjectOfType<EnemySpawner>().StartSpawning();
+            if (_levelManager != null)
+            {
+                _levelManager.StartEnemySpawning();
+            }
         }
-        
+
         public void StopEnemySpawning()
         {
-            // Stop your enemy spawning system
-            // Example: FindObjectOfType<EnemySpawner>().StopSpawning();
+            if (_levelManager != null)
+            {
+                _levelManager.StopEnemySpawning();
+            }
         }
-        
+
         public void StopAllEnemies()
         {
-            // Stop or destroy all active enemies
-            // Example: 
-            // Enemy[] enemies = FindObjectsOfType<Enemy>();
-            // foreach (Enemy enemy in enemies) enemy.Stop();
+            if (_levelManager != null)
+            {
+                _levelManager.StopAllEnemies();
+            }
         }
         
 #endregion

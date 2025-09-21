@@ -1,65 +1,54 @@
-using System;
 using UnityEngine;
 
 namespace Com.Boombit.CaseStudy.Game.Data
 {
-    [System.Serializable]
-    public abstract class CharacterData : ScriptableObject
+    public abstract class CharacterData
     {
         //  MEMBERS
-        //      Editor
-        [Header("Health")]
-        [SerializeField] protected float _maxHealth = 100f;
-        [SerializeField] protected float _currentHealth;
+        //      Protected
+        protected float maxHealth;
+        protected float currentHealth;
+        protected float moveSpeed;
+        protected float rotationSpeed;
+        protected float attackDamage;
+        protected float attackRange;
         
-        [Header("Movement")]
-        [SerializeField] protected float _moveSpeed = 5f;
-        [SerializeField] protected float _rotationSpeed = 360f;
+        //      Properties
+        public float MaxHealth      { get { return maxHealth; } }
+        public float CurrentHealth  { get { return currentHealth; } }
+        public float MoveSpeed      { get { return moveSpeed; } }
+        public float RotationSpeed  { get { return rotationSpeed; } }
+        public float AttackDamage   { get { return attackDamage; } }
+        public float AttackRange    { get { return attackRange; } }
         
-        [Header("Combat")]
-        [SerializeField] protected float _attackDamage = 10f;
-        [SerializeField] protected float _attackRange = 2f;
+        public bool IsDead { get { return CurrentHealth <= 0; } }
         
-        // Events
-        public event Action OnDamageTaken;
-        public event Action OnDeath;
-        
-        // Properties
-        public float MaxHealth      { get { return _maxHealth; } }
-        public float CurrentHealth  { get { return _currentHealth; } }
-        public float MoveSpeed      { get { return _moveSpeed; } }
-        public float RotationSpeed  { get { return _rotationSpeed; } }
-        public float AttackDamage   { get { return _attackDamage; } }
-        public float AttackRange    { get { return _attackRange; } }
-        
-        public bool IsDead => _currentHealth <= 0f;
-        public float HealthPercentage => _currentHealth / _maxHealth;
-        
-        //  METHODS
-        protected virtual void OnEnable()
+        //  CONSTRUCTORS
+        public CharacterData(float maxHealth, float currentHealth, float moveSpeed, float rotationSpeed, float attackDamage, float attackRange)
         {
-            _currentHealth = _maxHealth;
+            this.maxHealth      = maxHealth;
+            this.currentHealth  = currentHealth;
+            this.moveSpeed      = moveSpeed;
+            this.rotationSpeed  = rotationSpeed;
+            this.attackDamage   = attackDamage;
+            this.attackRange    = attackRange;
         }
         
-        // Health management methods
+        //  METHODS
         public virtual void TakeDamage(float damage)
         {
-            if (IsDead) return;
-            
-            _currentHealth = Mathf.Max(0f, _currentHealth - damage);
-            OnDamageTaken?.Invoke();
-            
             if (IsDead)
             {
-                OnDeath?.Invoke();
+                return;
             }
+            
+            currentHealth -= damage;
+            currentHealth = Mathf.Max(0f, currentHealth);
         }
         
         public virtual void ResetHealth()
         {
-            _currentHealth = _maxHealth;
+            currentHealth = maxHealth;
         }
-        
-        public abstract void Initialize();
     }
 }

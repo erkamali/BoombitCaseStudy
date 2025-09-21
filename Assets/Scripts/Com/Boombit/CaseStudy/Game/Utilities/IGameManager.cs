@@ -6,7 +6,7 @@ namespace Com.Boombit.CaseStudy.Game.Utilities
     {
         TimeManager TimeManager { get; }
         IGameData   GameData    { get; }
-        
+
         // UI related
         void ShowMainMenuUI();
         void HideMainMenuUI();

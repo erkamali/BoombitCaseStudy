@@ -8,10 +8,10 @@ namespace Com.Boombit.CaseStudy.Main.Data
     {
         //  MEMBERS
         //      Editor
-        [SerializeField] private EnemyData  _enemyData;
-        [SerializeField] private GameObject _enemyPrefab;
+        public EnemyData  EnemyData;
+        public GameObject EnemyPrefab;
         [Range(0f, 1f)]
-        [SerializeField] private float      _spawnWeight    = 1f;
-        [SerializeField] private float      _minSpawnDelay  = 0f;
+        public float    SpawnWeight    = 1f;
+        public float    MinSpawnDelay  = 0f;
     }
 }

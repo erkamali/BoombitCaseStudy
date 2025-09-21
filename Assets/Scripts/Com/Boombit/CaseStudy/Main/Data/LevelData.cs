@@ -8,15 +8,16 @@ namespace Com.Boombit.CaseStudy.Main.Data
         //  MEMBERS
         //      Editor
         [Header("Level Info")]
-        [SerializeField] private string _levelName = "Level 1";
-        [SerializeField] private float  _levelDuration = 60f;
+        public string LevelName = "Level 1";
+        public float  LevelDuration = 60f;
         
         [Header("Enemy Spawn")]
-        [SerializeField] private EnemyTypeInfo[]    _enemyTypes;
-        [SerializeField] private float              _baseSpawnInterval   = 2f;
-        [SerializeField] private int                _maxEnemiesAtOnce    = 10;
+        public EnemyTypeInfo[]  EnemyTypes;
+        public float            SpawnInterval       = 2f;
+        public int              MaxEnemiesAtOnce    = 10;
+        public int              MaxEnemies          = 20;
         
         [Range(0f, 2f)]
-        [SerializeField] private float              _spawnRateMultiplier = 1f;
+        public float            SpawnRateMultiplier = 1f;
     }
 }

@@ -1,20 +1,22 @@
-using UnityEngine;
-
 namespace Com.Boombit.CaseStudy.Game.Data
 {
-    [CreateAssetMenu(fileName = "New Enemy Data", menuName = "Character Data/Enemy Data")]
     public class EnemyData : CharacterData
     {
-        [Header("Enemy Specific")]
-        [SerializeField] private float _pathUpdatePeriod = 0.2f;
-        [SerializeField] private float _attackCooldown   = 1f;
+        //  MEMBERS
+        //      Private
+        private float _pathUpdatePeriod;
+        private float _attackCooldown;
         
-        public float PathUpdatePeriod   { get { return _pathUpdatePeriod; } }
-        public float AttackCooldown     { get { return _attackCooldown; } }
+        //      Properties
+        public float PathUpdatePeriod { get { return _pathUpdatePeriod; } }
+        public float AttackCooldown   { get { return _attackCooldown; } }
         
-        public override void Initialize()
+        //  CONSTRUCTORS
+        public EnemyData(float maxHealth, float currentHealth, float moveSpeed, float rotationSpeed, float attackDamage, float attackRange, float pathUpdatePeriod, float attackCooldown)
+            : base(maxHealth, currentHealth, moveSpeed, rotationSpeed, attackDamage, attackRange)
         {
-            Debug.Log($"Enemy initialized: {MaxHealth} HP, {MoveSpeed} speed, {AttackDamage} damage");
+            _pathUpdatePeriod   = pathUpdatePeriod;
+            _attackCooldown     = attackCooldown;
         }
     }
 }
