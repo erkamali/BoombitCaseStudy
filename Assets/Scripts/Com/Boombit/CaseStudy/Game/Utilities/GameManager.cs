@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Com.Boombit.CaseStudy.Game.Data;
 using Com.Boombit.CaseStudy.Game.Views;
 using Com.Boombit.CaseStudy.Main.Data;
+using Com.Boombit.CaseStudy.Main.Utilities;
 using UnityEngine;
 
 namespace Com.Boombit.CaseStudy.Game.Utilities
@@ -13,11 +14,9 @@ namespace Com.Boombit.CaseStudy.Game.Utilities
         [SerializeField] private TimeManager    _timeManager;
         [SerializeField] private LevelManager   _levelManager;
 
-        [SerializeField] private PlayerConfig   _defaultPlayerConfig;
-        [SerializeField] private EnemyConfig    _defaultEnemyConfig;
-
-        [SerializeField] private GameObject     _playerPrefab;
-        [SerializeField] private Transform      _playerSpawnPosition;
+        [Header("References")]
+        [SerializeField] private SceneReferences      _sceneReferences;
+        [SerializeField] private ResourceReferences   _resourceReferences;
         
         [Header("UIViews")]
         [SerializeField] private MainMenuUIView     _mainMenuUIView;
@@ -59,18 +58,18 @@ namespace Com.Boombit.CaseStudy.Game.Utilities
         
         private void Start()
         {
-            _stateManager.ChangeState("MainMenu");
+            _stateManager.ChangeState("MainMenuState");
         }
         
         private void InitStateManagers()
         {
             _stateManager = new StateManager();
             
-            _mainMenuStateHandler       = new MainMenuStateHandler(this);
-            _gameStateHandler           = new GameStateHandler(this);
-            _levelSuccessStateHandler   = new LevelSuccessStateHandler(this);
-            _levelFailStateHandler      = new LevelFailStateHandler(this);
-            _gamePauseStateHandler      = new GamePauseStateHandler(this);
+            _mainMenuStateHandler       = new MainMenuStateHandler(this, _sceneReferences, _resourceReferences);
+            _gameStateHandler           = new GameStateHandler(this, _sceneReferences, _resourceReferences);
+            _levelSuccessStateHandler   = new LevelSuccessStateHandler(this, _sceneReferences, _resourceReferences);
+            _levelFailStateHandler      = new LevelFailStateHandler(this, _sceneReferences, _resourceReferences);
+            _gamePauseStateHandler      = new GamePauseStateHandler(this, _sceneReferences, _resourceReferences);
             
             _stateManager.AddHandler(_mainMenuStateHandler);
             _stateManager.AddHandler(_gameStateHandler);
@@ -226,13 +225,13 @@ namespace Com.Boombit.CaseStudy.Game.Utilities
         // Level related
         public PlayerData CreatePlayerData(PlayerConfig playerConfig)
         {
-            PlayerData playerData = _gameData.CreatePlayer(_defaultPlayerConfig);
+            PlayerData playerData = _gameData.CreatePlayer(playerConfig);
             return playerData;
         }
 
         public EnemyData CreateEnemyData(EnemyConfig enemyConfig)
         {
-            EnemyData enemyData = _gameData.CreateEnemy(_defaultEnemyConfig);
+            EnemyData enemyData = _gameData.CreateEnemy(enemyConfig);
             return enemyData;
         }
         

@@ -1,3 +1,5 @@
+using Com.Boombit.CaseStudy.Game.Views;
+using Com.Boombit.CaseStudy.Main.Utilities;
 using UnityEngine;
 
 namespace Com.Boombit.CaseStudy.Game.Utilities
@@ -6,16 +8,25 @@ namespace Com.Boombit.CaseStudy.Game.Utilities
     {
         //  MEMBERS
         //      Private
-        private IGameManager _gameManager;
+        private IGameManager        _gameManager;
+        private SceneReferences     _sceneReferences;
+        private ResourceReferences  _resourceReferences;
+
+        private GameUIView          _uiView;
         
         //  METHODS
-        public GameStateHandler(IGameManager gameManager) : base("GameState")
+        public GameStateHandler(IGameManager gameManager, SceneReferences sceneReferences, ResourceReferences resourceReferences) : base("GameState")
         {
-            _gameManager = gameManager;
+            _gameManager        = gameManager;
+            _sceneReferences    = sceneReferences;
+            _resourceReferences = resourceReferences;
         }
         
         public override void Enter(string fromState)
         {
+            GameObject uiViewObject = GameObject.Instantiate(_resourceReferences.GameUIViewPrefab, _sceneReferences.UIViewContainer.transform);
+            _uiView = uiViewObject.GetComponent<GameUIView>();
+
             _gameManager.ShowGameUI();
             
             _gameManager.EnableControls();

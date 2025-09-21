@@ -65,7 +65,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: MAIN MENU
+  m_text: Mobile Shooter
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: e32fb8abd00dca74c992ba017cf2af31, type: 2}
   m_sharedMaterial: {fileID: 7045685305225645403, guid: e32fb8abd00dca74c992ba017cf2af31, type: 2}

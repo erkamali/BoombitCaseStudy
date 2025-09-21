@@ -24,7 +24,7 @@ namespace Com.Boombit.CaseStudy.Game.Views
         
         protected override void OnShow()
         {
-            //TODO: Animation
+            
         }
     }
 }
