@@ -24,10 +24,15 @@ namespace Com.Boombit.CaseStudy.Game.Utilities
         
         public override void Enter(string fromState)
         {
-            GameObject uiViewObject = GameObject.Instantiate(_resourceReferences.GameUIViewPrefab, _sceneReferences.UIViewContainer.transform);
-            _uiView = uiViewObject.GetComponent<GameUIView>();
+            if (_uiView == null)
+            {
+                //GameObject uiViewObject = GameObject.Instantiate(_resourceReferences.GameUIViewPrefab, _sceneReferences.UIViewContainer.transform);
+                GameObject uiViewObject = GameObject.Instantiate(_resourceReferences.GameUIViewPrefab);
+                _uiView = uiViewObject.GetComponent<GameUIView>();
+                _uiView.Init(_gameManager);
+            }
 
-            _gameManager.ShowGameUI();
+            _uiView.Show();
             
             _gameManager.EnableControls();
             
@@ -38,9 +43,22 @@ namespace Com.Boombit.CaseStudy.Game.Utilities
         
         public override void Exit(string toState)
         {
+            _uiView.Hide();
+
             _gameManager.DisableControls();
 
             _gameManager.TimeManager.StopTimer();
+        }
+
+        public void UpdateTimer(float currentTime, float normalizedTime)
+        {
+            if (_uiView == null)
+            {
+                Debug.LogError("This shouldn't happen!");
+                return;
+            }
+
+            _uiView.UpdateTimer(currentTime, normalizedTime);
         }
     }
 }

@@ -103,7 +103,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _rigidbody: {fileID: 3967961283343725428}
   _collider: {fileID: 7025672738168983931}
-  _speed: 1
+  _speed: 20
   _lifetime: 3
 --- !u!136 &7025672738168983931
 CapsuleCollider:

@@ -24,12 +24,14 @@ namespace Com.Boombit.CaseStudy.Game.Utilities
         
         public override void Enter(string fromState)
         {
-            GameObject uiViewObject = GameObject.Instantiate(_resourceReferences.LevelFailUIViewPrefab, _sceneReferences.UIViewContainer.transform);
-            _uiView = uiViewObject.GetComponent<LevelFailUIView>();
+            if (_uiView == null)
+            {
+                GameObject uiViewObject = GameObject.Instantiate(_resourceReferences.LevelFailUIViewPrefab, _sceneReferences.UIViewContainer.transform);
+                _uiView = uiViewObject.GetComponent<LevelFailUIView>();
+                _uiView.Init(_gameManager);
+            }
 
-            _gameManager.HideGameUI();
-
-            _gameManager.ShowLevelFailUI();
+            _uiView.Show();
             
             _gameManager.TimeManager.StopTimer();
             _gameManager.StopAllEnemies();
@@ -37,7 +39,7 @@ namespace Com.Boombit.CaseStudy.Game.Utilities
         
         public override void Exit(string toState)
         {
-            _gameManager.HideLevelFailUI();
+            _uiView.Hide();
         }
     }
 }

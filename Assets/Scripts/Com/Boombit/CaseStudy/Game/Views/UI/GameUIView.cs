@@ -28,7 +28,7 @@ namespace Com.Boombit.CaseStudy.Game.Views
         protected override void OnShow()
         {
             UpdateGameplayUI();
-            
+
             _timerContainer.SetActive(true);
         }
         
@@ -52,8 +52,7 @@ namespace Com.Boombit.CaseStudy.Game.Views
             _currentLevelText.text          = $"Level: {_gameManager.GameData.CurrentLevel}";
         }
         
-        // Called by GameManager when time updates
-        public void OnTimeUpdated(float currentTime, float normalizedTime)
+        public void UpdateTimer(float currentTime, float normalizedTime)
         {
             _timerBar.fillAmount = normalizedTime;
             

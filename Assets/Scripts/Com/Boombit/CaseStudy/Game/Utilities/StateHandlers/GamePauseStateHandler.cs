@@ -25,19 +25,23 @@ namespace Com.Boombit.CaseStudy.Game.Utilities
         
         public override void Enter(string fromState)
         {
-            GameObject uiViewObject = GameObject.Instantiate(_resourceReferences.GamePauseUIViewPrefab, _sceneReferences.UIViewContainer.transform);
-            _uiView = uiViewObject.GetComponent<GamePauseUIView>();
+            if (_uiView == null)
+            {
+                GameObject uiViewObject = GameObject.Instantiate(_resourceReferences.GamePauseUIViewPrefab, _sceneReferences.UIViewContainer.transform);
+                _uiView = uiViewObject.GetComponent<GamePauseUIView>();
+                _uiView.Init(_gameManager);
+            }
+
+            _uiView.Show();
 
             _previousState = fromState;
-            
-            _gameManager.ShowGamePauseUI();
             
             _gameManager.TimeManager.PauseTimer();
         }
         
         public override void Exit(string toState)
         {
-            _gameManager.HideGamePauseUI();
+            _uiView.Hide();
             
             if (toState == "GameState")
             {

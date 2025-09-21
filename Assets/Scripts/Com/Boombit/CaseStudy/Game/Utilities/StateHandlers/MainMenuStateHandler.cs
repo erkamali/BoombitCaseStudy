@@ -25,18 +25,21 @@ namespace Com.Boombit.CaseStudy.Game.Utilities
         
         public override void Enter(string fromState)
         {
-            GameObject uiViewObject = GameObject.Instantiate(_resourceReferences.MainMenuUIViewPrefab, _sceneReferences.UIViewContainer.transform);
-            _uiView = uiViewObject.GetComponent<MainMenuUIView>();
+            if (_uiView == null)
+            {
+                GameObject uiViewObject = GameObject.Instantiate(_resourceReferences.MainMenuUIViewPrefab, _sceneReferences.UIViewContainer.transform);
+                _uiView = uiViewObject.GetComponent<MainMenuUIView>();
+                _uiView.Init(_gameManager);
+            }
 
-            _gameManager.ShowMainMenuUI();
-            _gameManager.HideGameUI();
+            _uiView.Show();
             
             _gameManager.TimeManager.UnfreezeGame();
         }
         
         public override void Exit(string toState)
         {
-            _gameManager.HideMainMenuUI();
+            _uiView.Hide();
         }
     }
 }

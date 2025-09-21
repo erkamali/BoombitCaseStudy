@@ -590,6 +590,8 @@ MonoBehaviour:
   _startButton: {fileID: 7034854423166602583}
   _quitButton: {fileID: 846943834367737368}
   _titleText: {fileID: 3427493905653611859}
+  _panel: {fileID: 8878940611135195956}
+  _targetTransform: {fileID: 0}
 --- !u!1 &8350871494997343885
 GameObject:
   m_ObjectHideFlags: 0

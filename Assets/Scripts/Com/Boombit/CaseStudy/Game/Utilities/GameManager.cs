@@ -20,7 +20,7 @@ namespace Com.Boombit.CaseStudy.Game.Utilities
         
         [Header("UIViews")]
         [SerializeField] private MainMenuUIView     _mainMenuUIView;
-        [SerializeField] private GameUIView         _gameUIView;
+        //[SerializeField] private GameUIView         _gameUIView;
         [SerializeField] private LevelSuccessUIView _levelSuccessUIView;
         [SerializeField] private LevelFailUIView    _levelFailUIView;
         [SerializeField] private GamePauseUIView    _gamePauseUIView;
@@ -47,8 +47,8 @@ namespace Com.Boombit.CaseStudy.Game.Utilities
             _levelManager.Initialize(this);
 
             InitStateManagers();
-            InitUIViews();
             SubscribeToEvents();
+
         }
 
         private void OnDestroy()
@@ -77,18 +77,6 @@ namespace Com.Boombit.CaseStudy.Game.Utilities
             _stateManager.AddHandler(_levelFailStateHandler);
             _stateManager.AddHandler(_gamePauseStateHandler);
         }
-
-        private void InitUIViews()
-        {
-            _mainMenuUIView.Init(this);
-            _gameUIView.Init(this);
-            _levelSuccessUIView.Init(this);
-            _levelFailUIView.Init(this);
-            _gamePauseUIView.Init(this);
-            
-            HideAllUIViews();
-            _mainMenuUIView.Show();
-        }
         
         private void SubscribeToEvents()
         {
@@ -102,15 +90,6 @@ namespace Com.Boombit.CaseStudy.Game.Utilities
             TimeManager.OnTimeUpdated   -= OnTimeUpdated;
         }
 
-        private void HideAllUIViews()
-        {
-            _mainMenuUIView.Hide();
-            _gameUIView.Hide();
-            _levelSuccessUIView.Hide();
-            _levelFailUIView.Hide();
-            _gamePauseUIView.Hide();
-        }
-
 #region TimeManager callbacks
 
         public void OnTimerFinished()
@@ -120,9 +99,9 @@ namespace Com.Boombit.CaseStudy.Game.Utilities
 
         public void OnTimeUpdated(float currentTime, float normalizedTime)
         {
-            if (_gameUIView != null && _gameUIView.gameObject.activeInHierarchy)
+            if (_stateManager.CurrentState == "GameState")
             {
-                _gameUIView.OnTimeUpdated(currentTime, normalizedTime);
+                _gameStateHandler.UpdateTimer(currentTime, normalizedTime);
             }
         }
 
@@ -238,57 +217,51 @@ namespace Com.Boombit.CaseStudy.Game.Utilities
         // UI related
         public void ShowMainMenuUI()
         {
-            HideAllUIViews();
-            _mainMenuUIView.Show();
+            
         }
         
         public void HideMainMenuUI()
         {
-            _mainMenuUIView.Hide();
         }
         
         public void ShowGameUI()
         {
-            HideAllUIViews();
-            _gameUIView.Show();
+
         }
         
         public void HideGameUI()
         {
-            _gameUIView.Hide();
+
         }
         
         public void ShowLevelSuccessUI(int levelKills, int totalKills)
         {
-            HideAllUIViews();
-            _levelSuccessUIView.Show();
-            _levelSuccessUIView.UpdateStats(levelKills, totalKills);
+
         }
         
         public void HideLevelSuccessUI()
         {
-            _levelSuccessUIView.Hide();
+
         }
         
         public void ShowLevelFailUI()
         {
-            HideAllUIViews();
-            _levelFailUIView.Show();
+
         }
         
         public void HideLevelFailUI()
         {
-            _levelFailUIView.Hide();
+
         }
         
         public void ShowGamePauseUI()
         {
-            _gamePauseUIView.Show();
+
         }
         
         public void HideGamePauseUI()
         {
-            _gamePauseUIView.Hide();
+
         }
         
         public void EnableControls()

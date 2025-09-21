@@ -23,22 +23,24 @@ namespace Com.Boombit.CaseStudy.Game.Utilities
         }
         
         public override void Enter(string fromState)
-        {            
-            GameObject uiViewObject = GameObject.Instantiate(_resourceReferences.LevelSuccessUIViewPrefab, _sceneReferences.UIViewContainer.transform);
-            _uiView = uiViewObject.GetComponent<LevelSuccessUIView>();
+        {
+            if (_uiView == null)
+            {
+                GameObject uiViewObject = GameObject.Instantiate(_resourceReferences.LevelSuccessUIViewPrefab, _sceneReferences.UIViewContainer.transform);
+                _uiView = uiViewObject.GetComponent<LevelSuccessUIView>();
+                _uiView.Init(_gameManager);
+            }
+
+            _uiView.Show();
 
             _gameManager.GameData.CompleteLevel();
             
             _gameManager.StopAllEnemies();
-
-            _gameManager.HideGameUI();
-
-            _gameManager.ShowLevelSuccessUI(_gameManager.GameData.CurrentLevelKills, _gameManager.GameData.TotalKills);
         }
         
         public override void Exit(string toState)
         {
-            _gameManager.HideLevelSuccessUI();
+            _uiView.Hide();
         }
     }
 }
