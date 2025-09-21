@@ -1,9 +1,9 @@
 using UnityEngine;
-using Com.Boombit.CaseStudy.Constants;
-using Com.Boombit.CaseStudy.Data;
-using Com.Boombit.CaseStudy.Utilities;
+using Com.Boombit.CaseStudy.Game.Constants;
+using Com.Boombit.CaseStudy.Game.Data;
+using Com.Boombit.CaseStudy.Game.Utilities;
 
-namespace Com.Boombit.CaseStudy.Views
+namespace Com.Boombit.CaseStudy.Game.Views
 {
     public class PlayerView : CharacterView
     {

@@ -1,4 +1,4 @@
-namespace Com.Boombit.CaseStudy.Data
+namespace Com.Boombit.CaseStudy.Game.Data
 {
     public interface IGameData
     {

@@ -2,7 +2,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Com.Boombit.CaseStudy.Views
+namespace Com.Boombit.CaseStudy.Game.Views
 {
     public class GameUIView : BaseUIView
     {

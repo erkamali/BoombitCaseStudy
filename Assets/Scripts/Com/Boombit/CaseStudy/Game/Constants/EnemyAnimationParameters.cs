@@ -1,4 +1,4 @@
-namespace Com.Boombit.CaseStudy.Constants
+namespace Com.Boombit.CaseStudy.Game.Constants
 {
     public static class EnemyAnimationParameters
     {

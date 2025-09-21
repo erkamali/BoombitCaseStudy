@@ -1,7 +1,7 @@
-using Com.Boombit.CaseStudy.Constants;
+using Com.Boombit.CaseStudy.Game.Constants;
 using UnityEngine;
 
-namespace Com.Boombit.CaseStudy.Data
+namespace Com.Boombit.CaseStudy.Game.Data
 {
     public class GameData : IGameData
     {

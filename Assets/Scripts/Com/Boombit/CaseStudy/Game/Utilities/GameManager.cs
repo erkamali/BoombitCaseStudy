@@ -1,8 +1,8 @@
-using Com.Boombit.CaseStudy.Data;
-using Com.Boombit.CaseStudy.Views;
+using Com.Boombit.CaseStudy.Game.Data;
+using Com.Boombit.CaseStudy.Game.Views;
 using UnityEngine;
 
-namespace Com.Boombit.CaseStudy.Utilities
+namespace Com.Boombit.CaseStudy.Game.Utilities
 {
     public class GameManager : MonoBehaviour, IGameManager
     {

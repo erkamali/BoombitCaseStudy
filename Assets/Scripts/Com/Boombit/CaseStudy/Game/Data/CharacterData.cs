@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace Com.Boombit.CaseStudy.Data
+namespace Com.Boombit.CaseStudy.Game.Data
 {
     [System.Serializable]
     public abstract class CharacterData : ScriptableObject

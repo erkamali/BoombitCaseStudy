@@ -1,9 +1,9 @@
 using UnityEngine;
 using UnityEngine.AI;
-using Com.Boombit.CaseStudy.Constants;
-using Com.Boombit.CaseStudy.Data;
+using Com.Boombit.CaseStudy.Game.Constants;
+using Com.Boombit.CaseStudy.Game.Data;
 
-namespace Com.Boombit.CaseStudy.Views
+namespace Com.Boombit.CaseStudy.Game.Views
 {
     [RequireComponent(typeof(NavMeshAgent))]
     public class EnemyView : CharacterView

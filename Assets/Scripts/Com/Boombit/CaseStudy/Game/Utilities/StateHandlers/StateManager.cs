@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Com.Boombit.CaseStudy.Utilities
+namespace Com.Boombit.CaseStudy.Game.Utilities
 {
     public class StateManager : IStateManager
     {

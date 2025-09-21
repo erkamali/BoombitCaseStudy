@@ -1,4 +1,4 @@
-using Com.Boombit.CaseStudy.Data;
+using Com.Boombit.CaseStudy.Game.Data;
 using UnityEngine;
 
 namespace Com.Boombit.CaseStudy.Main.Data

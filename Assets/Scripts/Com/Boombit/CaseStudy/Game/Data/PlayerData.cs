@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Com.Boombit.CaseStudy.Data
+namespace Com.Boombit.CaseStudy.Game.Data
 {
     [CreateAssetMenu(fileName = "New Player Data", menuName = "Character Data/Player Data")]
     public class PlayerData : CharacterData

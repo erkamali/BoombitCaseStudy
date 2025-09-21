@@ -2,7 +2,7 @@ using System;
 using TMPro;
 using UnityEngine;
 
-namespace Com.Boombit.CaseStudy.Utilities
+namespace Com.Boombit.CaseStudy.Game.Utilities
 {
     public class TimeManager : MonoBehaviour
     {

@@ -1,7 +1,7 @@
-using Com.Boombit.CaseStudy.Utilities;
+using Com.Boombit.CaseStudy.Game.Utilities;
 using UnityEngine;
 
-namespace Com.Boombit.CaseStudy.Views
+namespace Com.Boombit.CaseStudy.Game.Views
 {
     public class BulletView : MonoBehaviour
     {

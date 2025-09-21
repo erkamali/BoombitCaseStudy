@@ -1,6 +1,6 @@
-using Com.Boombit.CaseStudy.Data;
+using Com.Boombit.CaseStudy.Game.Data;
 
-namespace Com.Boombit.CaseStudy.Utilities
+namespace Com.Boombit.CaseStudy.Game.Utilities
 {
     public interface IGameManager
     {
