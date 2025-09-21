@@ -1,5 +1,6 @@
-using System.Collections;
 using System.Collections.Generic;
+using Com.Boombit.CaseStudy.Game.Data;
+using Com.Boombit.CaseStudy.Game.Utilities;
 using Com.Boombit.CaseStudy.Game.Views;
 using UnityEngine;
 
@@ -8,204 +9,241 @@ namespace Com.Boombit.CaseStudy.Main.Data
     public class LevelManager : MonoBehaviour
     {
         //  MEMBERS
-        //
         //      Editor
         [Header("Level Configuration")]
-        [SerializeField] private Levels         _levels;
-        [SerializeField] private Transform[]    _enemySpawnPoints;
-        [SerializeField] private Transform      _playerTransform;
-        
-        // Properties
-        public LevelData    CurrentLevelData    { get { return _currentLevelData; } }
-        public int          CurrentLevelIndex   { get { return _currentLevelIndex; } }
-        public bool         IsSpawning          { get { return _isSpawning; } }
-        public int          ActiveEnemyCount    { get { return _activeEnemies.Count; } }
-        public int          TotalEnemiesSpawned { get { return _totalEnemiesSpawned; } }
+        [SerializeField] private Levels _levels;
 
         //      Private
-        private LevelData           _currentLevelData;
-        private int                 _currentLevelIndex = 0;
-        private bool                _isSpawning = false;
-        private List<GameObject>    _activeEnemies = new List<GameObject>();
-        private int                 _totalEnemiesSpawned = 0;
-        private Coroutine           _spawnCoroutine;
-        private EnemySpawner        _enemySpawner;
+        private PlayerView                  _player;
+        private Dictionary<int, EnemyView>  _enemies;
+        private GameObject                  _currentLevelLayout;
+        private IGameManager                _gameManager;
 
-        //  METHODS        
-        private void Awake()
+        //      Properties
+        public PlayerView   Player      { get { return _player; } }
+        public int          EnemyCount  { get { return _enemies.Count; } }
+
+        //  METHODS
+        public void Initialize(IGameManager gameManager)
         {
-            _enemySpawner = GetComponent<EnemySpawner>();
-            if (_enemySpawner == null)
-            {
-                _enemySpawner = gameObject.AddComponent<EnemySpawner>();
-            }
+            _enemies = new Dictionary<int, EnemyView>();
+            _gameManager = gameManager;
         }
-        
-        private void Start()
+
+        public void LoadLevel(int levelIndex)
         {
-            if (_levels != null && _levels.LevelsArray.Length > 0)
+            if (!IsValidLevelIndex(levelIndex))
             {
-                PrepareLevel(0);
-            }
-        }
-        
-        public void PrepareLevel(int levelIndex)
-        {
-            if (_levels == null || 
-                levelIndex >= _levels.LevelsArray.Length || 
-                levelIndex < 0)
-            {
-                Debug.LogError($"Invalid level index!");
+                Debug.LogError("Invalid level index: " + levelIndex);
                 return;
             }
             
-            _currentLevelIndex = levelIndex;
-            _currentLevelData = _levels.LevelsArray[levelIndex];
+            LevelData levelData = _levels.GetLevel(levelIndex);
             
-            // First, clear all enemies
-            ClearAllEnemies();
+            CreateLevelLayout(levelData);
             
-            // Reset spawn state
-            _isSpawning = false;            
-            if (_spawnCoroutine != null)
+            CreatePlayer(levelData);
+            
+            CreateEnemies(levelData);
+        }
+
+        public void UnloadLevel()
+        {
+            if (_player != null)
             {
-                StopCoroutine(_spawnCoroutine);
-                _spawnCoroutine = null;
+                Destroy(_player.gameObject);
+                _player = null;
+            }
+            
+            foreach (var enemy in _enemies.Values)
+            {
+                if (enemy != null)
+                {
+                    Destroy(enemy.gameObject);
+                }
+            }
+            _enemies.Clear();
+            
+            if (_currentLevelLayout != null)
+            {
+                Destroy(_currentLevelLayout);
+                _currentLevelLayout = null;
             }
         }
-        
-        public void PrepareNextLevel()
+
+        private void CreateLevelLayout(LevelData levelData)
         {
-            int nextLevelIndex = _currentLevelIndex + 1;
-            
-            if (nextLevelIndex < _levels.LevelsArray.Length)
+            if (levelData.LevelLayoutPrefab != null)
             {
-                PrepareLevel(nextLevelIndex);
+                _currentLevelLayout = Instantiate(levelData.LevelLayoutPrefab);
             }
             else
             {
-                PrepareLevel(0);
+                Debug.LogWarning("No level layout prefab found");
             }
         }
-        
-        public void PrepareCurrentLevel()
+
+        private void CreatePlayer(LevelData levelData)
         {
-            PrepareLevel(_currentLevelIndex);
-        }
-        
-        public void StartEnemySpawning()
-        {
-            if (_currentLevelData == null)
+            if (levelData.PlayerPrefab == null)
             {
-                Debug.LogError("No level data available");
+                Debug.LogError("No player prefab found");
                 return;
             }
             
-            if (_isSpawning)
+            if (levelData.PlayerSpawnTransform == null)
             {
-                Debug.LogError("Already spawning");
+                Debug.LogError("No player spawn transform found");
                 return;
             }
             
-            _isSpawning = true;
+            PlayerData playerData = _gameManager.CreatePlayerData(levelData.PlayerConfig);
             
-            _enemySpawner.Initialize(_currentLevelData, _enemySpawnPoints, this);
+            Vector3     spawnPos    = levelData.PlayerSpawnTransform.position;
+            Quaternion  spawnRot    = levelData.PlayerSpawnTransform.rotation;
+            GameObject  playerObj   = Instantiate(levelData.PlayerPrefab, spawnPos, spawnRot);
             
-            // Start spawning enemies
-            _spawnCoroutine = StartCoroutine(SpawnEnemies());
-        }
-        
-        public void StopEnemySpawning()
-        {
-            if (!_isSpawning)
+            _player = playerObj.GetComponent<PlayerView>();
+            if (_player != null)
             {
+                _player.Initialize(playerData, _gameManager);
+            }
+        }
+
+        private void CreateEnemies(LevelData levelData)
+        {
+            if (levelData.EnemyTypes == null || levelData.EnemyTypes.Length == 0)
+            {
+                Debug.LogWarning("No enemy types for this level");
                 return;
             }
             
-            _isSpawning = false;
-            
-            if (_spawnCoroutine != null)
+            for (int i = 0; i < levelData.MaxEnemies; i++)
             {
-                StopCoroutine(_spawnCoroutine);
-                _spawnCoroutine = null;
+                CreateEnemy(levelData);
             }
         }
-        
-        // Spawn coroutine
-        private IEnumerator SpawnEnemies()
+
+        private void CreateEnemy(LevelData levelData)
         {
-            while (_isSpawning && _currentLevelData != null)
+            EnemyTypeInfo selectedEnemyType = SelectWeightedEnemyType(levelData.EnemyTypes);
+            if (selectedEnemyType == null || selectedEnemyType.EnemyPrefab == null)
             {
-                // Check if we should spawn more enemies
-                bool canSpawn = _activeEnemies.Count < _currentLevelData.MaxEnemiesAtOnce;
-                
-                canSpawn = _totalEnemiesSpawned < _currentLevelData.MaxEnemies;
-                
-                if (canSpawn && _enemySpawnPoints.Length > 0)
+                Debug.LogError("Failed to select valid enemy type");
+                return;
+            }
+            
+            EnemyData enemyData = _gameManager.CreateEnemyData(selectedEnemyType.EnemyConfig);
+            Vector3 spawnPos = GetRandomSpawnPosition(levelData);
+            GameObject enemyObj = Instantiate(selectedEnemyType.EnemyPrefab, spawnPos, Quaternion.identity);
+            
+            EnemyView enemyView = enemyObj.GetComponent<EnemyView>();
+            if (enemyView != null && _player != null)
+            {
+                enemyView.Initialize(enemyData, _player.transform, _gameManager);
+                _enemies[enemyData.ID] = enemyView;
+            }
+            else
+            {
+                Debug.LogError("EnemyView component not found");
+                Destroy(enemyObj);
+            }
+        }
+
+        private EnemyTypeInfo SelectWeightedEnemyType(EnemyTypeInfo[] enemyTypes)
+        {
+            if (enemyTypes.Length == 0) return null;
+            
+            float totalWeight = 0f;
+            foreach (var enemyType in enemyTypes)
+            {
+                totalWeight += enemyType.SpawnWeight;
+            }
+            
+            if (totalWeight <= 0f)
+            {
+                return enemyTypes[Random.Range(0, enemyTypes.Length)];
+            }
+            
+            float randomValue = Random.Range(0f, totalWeight);
+            float currentWeight = 0f;
+            
+            foreach (var enemyType in enemyTypes)
+            {
+                currentWeight += enemyType.SpawnWeight;
+                if (randomValue <= currentWeight)
                 {
-                    _enemySpawner.SpawnRandomEnemy();
-                    _totalEnemiesSpawned++;
+                    return enemyType;
                 }
+            }
+            
+            // Fallback
+            return enemyTypes[0];
+        }
+
+        private Vector3 GetRandomSpawnPosition(LevelData levelData)
+        {
+            if (levelData.EnemySpawnPoints == null || levelData.EnemySpawnPoints.Length == 0)
+            {
+                // Fallback to random position
+                float range = 10f;
+                return new Vector3(
+                    Random.Range(-range, range),
+                    0f,
+                    Random.Range(-range, range)
+                );
+            }
+            
+            Transform spawnPoint = levelData.EnemySpawnPoints[Random.Range(0, levelData.EnemySpawnPoints.Length)];
+            return spawnPoint.position;
+        }
+
+        private bool IsValidLevelIndex(int levelIndex)
+        {
+            return _levels != null && _levels.IsValidLevelIndex(levelIndex);
+        }
+
+#region CharacterView methods
+
+        public EnemyView GetEnemy(int enemyId)
+        {
+            _enemies.TryGetValue(enemyId, out EnemyView enemy);
+            return enemy;
+        }
+        
+        public bool HasEnemy(int enemyId)
+        {
+            return _enemies.ContainsKey(enemyId);
+        }
+        
+        public void RemoveEnemy(int enemyId)
+        {
+            if (_enemies.ContainsKey(enemyId))
+            {
+                EnemyView enemy = _enemies[enemyId];
+                _enemies.Remove(enemyId);
                 
-                // Wait for next spawn
-                float spawnInterval = _currentLevelData.SpawnInterval / _currentLevelData.SpawnRateMultiplier;
-                yield return new WaitForSeconds(spawnInterval);
-            }
-        }
-        
-        public void RegisterEnemy(GameObject enemy)
-        {
-            if (!_activeEnemies.Contains(enemy))
-            {
-                _activeEnemies.Add(enemy);
-            }
-        }
-        
-        public void UnregisterEnemy(GameObject enemy)
-        {
-            _activeEnemies.Remove(enemy);
-        }
-        
-        public void ClearAllEnemies()
-        {
-            foreach (GameObject enemy in _activeEnemies.ToArray())
-            {
                 if (enemy != null)
                 {
-                    Destroy(enemy);
+                    Destroy(enemy.gameObject);
                 }
             }
-            _activeEnemies.Clear();
-            _totalEnemiesSpawned = 0;
         }
-        
-        public void StopAllEnemies()
+
+#endregion
+
+        public float GetLevelDuration(int levelIndex)
         {
-            foreach (GameObject enemy in _activeEnemies)
+            if (IsValidLevelIndex(levelIndex))
             {
-                if (enemy != null)
-                {
-                    // Disable enemy AI/movement
-                    EnemyView enemyView = enemy.GetComponent<EnemyView>();
-                    enemyView.enabled = false;
-                }
+                return _levels.GetLevel(levelIndex).LevelDuration;
             }
+            return 0f;
         }
-        
-        // Utility methods for GameManager integration
-        public float GetLevelDuration()
-        {
-            return _currentLevelData != null ? _currentLevelData.LevelDuration : 0f;
-        }
-        
-        public bool HasNextLevel()
-        {
-            return _levels != null && _currentLevelIndex + 1 < _levels.LevelsArray.Length;
-        }
-        
+
         public int GetTotalLevelCount()
         {
-            return _levels != null ? _levels.LevelsArray.Length : 0;
+            return _levels.LevelsArray.Length;
         }
     }
 }

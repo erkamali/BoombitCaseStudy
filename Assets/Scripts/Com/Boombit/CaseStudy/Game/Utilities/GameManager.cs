@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Com.Boombit.CaseStudy.Game.Data;
 using Com.Boombit.CaseStudy.Game.Views;
 using Com.Boombit.CaseStudy.Main.Data;
@@ -11,6 +12,12 @@ namespace Com.Boombit.CaseStudy.Game.Utilities
         //      Editor
         [SerializeField] private TimeManager    _timeManager;
         [SerializeField] private LevelManager   _levelManager;
+
+        [SerializeField] private PlayerConfig   _defaultPlayerConfig;
+        [SerializeField] private EnemyConfig    _defaultEnemyConfig;
+
+        [SerializeField] private GameObject     _playerPrefab;
+        [SerializeField] private Transform      _playerSpawnPosition;
         
         [Header("UIViews")]
         [SerializeField] private MainMenuUIView     _mainMenuUIView;
@@ -37,6 +44,8 @@ namespace Com.Boombit.CaseStudy.Game.Utilities
         private void Awake()
         {
             _gameData = new GameData();
+
+            _levelManager.Initialize(this);
 
             InitStateManagers();
             InitUIViews();
@@ -119,21 +128,21 @@ namespace Com.Boombit.CaseStudy.Game.Utilities
         }
 
 #endregion
-
-        public void OnPlayerDied()
-        {
-            _stateManager.ChangeState("LevelFailState");
-        }
-        
-        public void OnEnemyKilled()
-        {
-            _gameData.IncrementKillCount();
-        }
         
 #region View callbacks
     
         public void StartGame()
         {
+            _gameData.SetCurrentLevel(0);
+
+            _levelManager.UnloadLevel();
+
+            _levelManager.LoadLevel(_gameData.CurrentLevel);
+
+            float levelDuration = _levelManager.GetLevelDuration(_gameData.CurrentLevel);
+            _timeManager.Init(levelDuration);
+            _timeManager.StartTimer();
+
             _stateManager.ChangeState("GameState");
         }
         
@@ -155,12 +164,44 @@ namespace Com.Boombit.CaseStudy.Game.Utilities
         
         public void RestartLevel()
         {
+            _levelManager.UnloadLevel();
+
+            _gameData.ResetCurrentLevelKillCount();
+
+            _levelManager.LoadLevel(_gameData.CurrentLevel);
+            
+            float levelDuration = _levelManager.GetLevelDuration(_gameData.CurrentLevel);
+            _timeManager.Init(levelDuration);
+            _timeManager.StartTimer();
+
             _stateManager.ChangeState("GameState");
         }
         
         public void NextLevel()
         {
             _gameData.CompleteLevel();
+
+            int totalLevels = _levelManager.GetTotalLevelCount();
+            int currentLevelIndex = _gameData.CurrentLevel - 1;
+
+            if (_gameData.CurrentLevel < totalLevels)
+            {
+                _levelManager.UnloadLevel();
+
+                _levelManager.LoadLevel(_gameData.CurrentLevel);
+
+                float levelDuration = _levelManager.GetLevelDuration(_gameData.CurrentLevel);
+                _timeManager.Init(levelDuration);
+                _timeManager.StartTimer();
+                
+                _stateManager.ChangeState("GameState");
+            }
+            else
+            {
+                Debug.Log("All levels completed!");
+                _stateManager.ChangeState("MainMenuState");
+            }
+
             _stateManager.ChangeState("GameState");
         }
         
@@ -181,6 +222,19 @@ namespace Com.Boombit.CaseStudy.Game.Utilities
 #endregion
         
 #region IGameManager implementations
+
+        // Level related
+        public PlayerData CreatePlayerData(PlayerConfig playerConfig)
+        {
+            PlayerData playerData = _gameData.CreatePlayer(_defaultPlayerConfig);
+            return playerData;
+        }
+
+        public EnemyData CreateEnemyData(EnemyConfig enemyConfig)
+        {
+            EnemyData enemyData = _gameData.CreateEnemy(_defaultEnemyConfig);
+            return enemyData;
+        }
         
         // UI related
         public void ShowMainMenuUI()
@@ -250,27 +304,79 @@ namespace Com.Boombit.CaseStudy.Game.Utilities
             playerView.SetControlsEnabled(false);
         }
 
-        public void StartEnemySpawning()
-        {
-            if (_levelManager != null)
-            {
-                _levelManager.StartEnemySpawning();
-            }
-        }
-
-        public void StopEnemySpawning()
-        {
-            if (_levelManager != null)
-            {
-                _levelManager.StopEnemySpawning();
-            }
-        }
-
         public void StopAllEnemies()
         {
-            if (_levelManager != null)
+            IEnumerator<EnemyData> enemies = _gameData.GetEnemies();
+            while (enemies.MoveNext())
             {
-                _levelManager.StopAllEnemies();
+                EnemyData enemy = enemies.Current;
+                EnemyView enemyView = _levelManager.GetEnemy(enemy.ID);
+                enemyView.Stop();
+            }
+        }
+
+        public void OnCharacterTakeDamage(int characterId, float damage)
+        {
+            if (characterId == 0)
+            {
+                _gameData.Player.TakeDamage(damage);
+                
+                Debug.Log("Player took " + damage + " damage.");
+                
+                if (_gameData.Player.IsDead)
+                {
+                    Debug.Log("Player health reached 0");
+
+                    PlayerView playerView = _levelManager.Player;
+                    playerView.Die();
+                }
+                
+                // TODO: Health bars?
+            }
+            else
+            {
+                if (_gameData.HasEnemy(characterId))
+                {
+                    EnemyData enemy = _gameData.GetEnemy(characterId);
+                    enemy.TakeDamage(damage);
+                    
+                    Debug.Log("Enemy with characterId " + characterId +" took " + damage + " damage");
+                    
+                    if (enemy.IsDead)
+                    {
+                        Debug.Log("Enemy health reached 0");
+                        EnemyView enemyView = _levelManager.GetEnemy(characterId);
+                        enemyView.Die();
+                    }
+                }
+                else
+                {
+                    Debug.LogWarning("Enemy not found");
+                }
+            }
+        }
+
+        public void OnCharacterDied(int characterId)
+        {
+            if (characterId == 0)
+            {
+                Debug.Log("Player died");
+                
+                _stateManager.ChangeState("LevelFailState");
+            }
+            else
+            {
+                Debug.Log("Enemy with characterId " + characterId +" died");
+
+                if (_levelManager.HasEnemy(characterId))
+                {
+                    _levelManager.RemoveEnemy(characterId);
+
+                    _gameData.RemoveEnemy(characterId);
+                }
+                
+                // Increment kill count
+                _gameData.IncrementKillCount();
             }
         }
         

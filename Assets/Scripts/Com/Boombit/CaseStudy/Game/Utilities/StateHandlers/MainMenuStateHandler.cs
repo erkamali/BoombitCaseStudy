@@ -25,8 +25,6 @@ namespace Com.Boombit.CaseStudy.Game.Utilities
         
         public override void Exit(string toState)
         {
-            Debug.Log($"Exiting Main Menu to {toState}");
-
             _gameManager.HideMainMenuUI();
         }
     }

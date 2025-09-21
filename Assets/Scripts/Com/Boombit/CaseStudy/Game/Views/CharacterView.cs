@@ -1,4 +1,5 @@
 using Com.Boombit.CaseStudy.Game.Data;
+using Com.Boombit.CaseStudy.Game.Utilities;
 using UnityEngine;
 
 namespace Com.Boombit.CaseStudy.Game.Views
@@ -6,58 +7,31 @@ namespace Com.Boombit.CaseStudy.Game.Views
     public abstract class CharacterView : MonoBehaviour, ICharacterView
     {
         //  MEMBERS
-        [SerializeField] protected CharacterData _characterData;
+        protected int           _id;
+        protected CharacterData _characterData;
+        protected IGameManager  _gameManager;
         
-        public CharacterData CharacterData { get { return _characterData; } }
+        public int              ID              { get { return _id; } }
+        public CharacterData    CharacterData   { get { return _characterData; } }
         
         //  METHODS
-        protected virtual void Start()
+        public virtual void Init(CharacterData data, IGameManager gameManager)
         {
-            if (_characterData != null)
-            {
-                Init(_characterData);
-                SubscribeToEvents();
-            }
+            _id             = data.ID;
+            _characterData  = data;
+            _gameManager    = gameManager;
         }
-        
-        public virtual void Init(CharacterData data)
-        {
-            _characterData = data;
-            data.Initialize();
-        }
-        
-        protected virtual void SubscribeToEvents()
-        {
-            _characterData.OnDamageTaken    += OnDamageTaken;
-            _characterData.OnDeath          += OnDeath;
-        }
-        
-        protected virtual void OnDestroy()
-        {
-            UnsubscribeFromEvents();
-        }
-        
-        protected virtual void UnsubscribeFromEvents()
-        {
-            _characterData.OnDamageTaken    -= OnDamageTaken;
-            _characterData.OnDeath          -= OnDeath;
-        }
-        
+
         public virtual void TakeDamage(float damage)
         {
-            _characterData.TakeDamage(damage);
+            _gameManager.OnCharacterTakeDamage(_id, damage);
         }
-        
+    
         public abstract void Die();
         
-        protected virtual void OnDamageTaken()
+        protected virtual void OnCharacterDied()
         {
-            // TODO: Play take damage anim
-        }
-        
-        protected virtual void OnDeath()
-        {
-            Die();
+            _gameManager.OnCharacterDied(_id);
         }
     }
 }

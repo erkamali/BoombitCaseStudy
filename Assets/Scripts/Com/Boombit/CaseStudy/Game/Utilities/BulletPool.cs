@@ -36,7 +36,7 @@ namespace Com.Boombit.CaseStudy.Game.Utilities
         {
             if (BulletPrefab == null)
             {
-                Debug.LogError("Bullet prefab is not assigned!");
+                Debug.LogError("Bullet prefab not assigned!");
                 return;
             }
             

@@ -35,7 +35,6 @@ namespace Com.Boombit.CaseStudy.Game.Views
             
             /*
             Vector3 newPosition = transform.position + _direction * _speed * Time.fixedDeltaTime;
-            Debug.Log($"Moving from {transform.position} to {newPosition}, direction: {_direction}, speed: {_speed}");
     
             _rigidbody.MovePosition(newPosition);
             */
@@ -78,16 +77,8 @@ namespace Com.Boombit.CaseStudy.Game.Views
             }
             else
             {
-                Debug.Log($"Object hit has no EnemyView component");
+                Debug.Log("No EnemyView on collider");
             }
-            
-            /*
-            if (other.CompareTag("Obstacle"))
-            {
-                Debug.Log("Hit obstacle");
-                ReturnToPool();
-            }
-            */
         }
         
         void ReturnToPool()

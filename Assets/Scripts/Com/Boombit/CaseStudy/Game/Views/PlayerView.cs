@@ -33,14 +33,19 @@ namespace Com.Boombit.CaseStudy.Game.Views
         };
         
         //  METHODS
-        protected override void Start()
+
+        public void Initialize(PlayerData playerData, IGameManager gameManager)
         {
-            base.Start();
+            Init(playerData, gameManager);
+        }
+
+        public override void Init(CharacterData data, IGameManager gameManager)
+        {
+            base.Init(data, gameManager);
             
             _playerData = (PlayerData)CharacterData;
             _deadZone = _playerData.InputDeadZone;
-            
-            //_animator = GetComponent<Animator>();
+            _controlsEnabled = true;
         }
         
         void Update()
@@ -213,6 +218,8 @@ namespace Com.Boombit.CaseStudy.Game.Views
             Debug.Log("Player died");
             
             this.enabled = false;
+
+            OnCharacterDied();
         }
 
 #endregion

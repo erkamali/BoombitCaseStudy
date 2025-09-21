@@ -2,6 +2,8 @@ using UnityEngine;
 using UnityEngine.AI;
 using Com.Boombit.CaseStudy.Game.Constants;
 using Com.Boombit.CaseStudy.Game.Data;
+using Com.Boombit.CaseStudy.Game.Utilities;
+using System.Collections;
 
 namespace Com.Boombit.CaseStudy.Game.Views
 {
@@ -15,57 +17,50 @@ namespace Com.Boombit.CaseStudy.Game.Views
         
         //      Private
         private NavMeshAgent _navmeshAgent;
-        private float _distanceToPlayer;
-        private float _lastAttackTime;
-        private float _lastPathUpdate;
-        private bool _isAttacking = false;
+        private float        _distanceToPlayer;
+        private float        _lastAttackTime;
+        private float        _lastPathUpdate;
+        private bool         _isAttacking = false;
 
         private Transform _player;
         private EnemyData _enemyData;
         
         //  METHODS
-        protected override void Start()
+        public void Initialize(EnemyData enemyData, Transform playerTransform, IGameManager gameManager)
         {
-            base.Start();
-            
-            _enemyData = (EnemyData)CharacterData;
+            _player = playerTransform;
+            Init(enemyData, gameManager);
             
             InitComponents();
             SetupNavMeshAgent();
-            FindPlayer();
             
             _lastAttackTime = -_enemyData.AttackCooldown;
             _lastPathUpdate = -_enemyData.PathUpdatePeriod;
         }
+        
+        public override void Init(CharacterData data, IGameManager gameManager)
+        {
+            base.Init(data, gameManager);
+            
+            EnemyData enemyData = (EnemyData)data;
+            _enemyData = enemyData;
+        }
 
-        void InitComponents()
+        private void InitComponents()
         {
             //_animator = GetComponent<Animator>();
             _navmeshAgent = GetComponent<NavMeshAgent>();
         }
 
-        void SetupNavMeshAgent()
+        private void SetupNavMeshAgent()
         {
             _navmeshAgent.speed             = _enemyData.MoveSpeed;
             _navmeshAgent.stoppingDistance  = _enemyData.AttackRange * 0.8f;
             _navmeshAgent.acceleration      = 12f;
             _navmeshAgent.angularSpeed      = _enemyData.RotationSpeed;
         }
-
-        void FindPlayer()
-        {
-            GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
-            if (playerObj != null)
-            {
-                _player = playerObj.transform;
-            }
-            else
-            {
-                Debug.LogError("No player found. Check Player prefab tag.");
-            }
-        }
         
-        void Update()
+        private void Update()
         {
             if (_enemyData.IsDead || 
                 _player == null   || 
@@ -79,14 +74,14 @@ namespace Com.Boombit.CaseStudy.Game.Views
             UpdateAnimator();
         }
         
-        void CalculateDistanceToPlayer()
+        private void CalculateDistanceToPlayer()
         {
             _distanceToPlayer = Vector3.Distance(transform.position, _player.position);
         }
         
-        void HandleAI()
+        private void HandleAI()
         {
-            // Check if we should attack
+            // Check if enemy should attack
             if (_distanceToPlayer <= _enemyData.AttackRange && 
                 Time.time >= _lastAttackTime + _enemyData.AttackCooldown)
             {
@@ -99,7 +94,7 @@ namespace Com.Boombit.CaseStudy.Game.Views
             }
         }
         
-        void FollowPlayer()
+        private void FollowPlayer()
         {
             // Set path to player
             if (Time.time >= _lastPathUpdate + _enemyData.PathUpdatePeriod)
@@ -122,7 +117,7 @@ namespace Com.Boombit.CaseStudy.Game.Views
             }
         }
         
-        void LookAtPlayer()
+        private void LookAtPlayer()
         {
             Vector3 lookDirection = _player.position - transform.position;
             lookDirection.y = 0;
@@ -134,7 +129,7 @@ namespace Com.Boombit.CaseStudy.Game.Views
             }
         }
         
-        void AttackPlayer()
+        private void AttackPlayer()
         {
             _isAttacking = true;
             _lastAttackTime = Time.time;
@@ -145,25 +140,47 @@ namespace Com.Boombit.CaseStudy.Game.Views
             LookAtPlayer();
             _animator.SetTrigger(EnemyAnimationParameters.ATTACK);
             
-            // Stop the attack flag after animation duration (adjust based on your animation length)
-            Invoke(nameof(StopAttacking), 1f); // Adjust this timing based on your attack animation length
+            StartCoroutine(AttackWithDelay());
+        
+            Invoke(nameof(StopAttacking), 1f);
+        }
+
+        private IEnumerator AttackWithDelay()
+        {
+            yield return new WaitForSeconds(0.5f);
+            
+            // Check if player is still in range before dealing damage
+            if (_distanceToPlayer <= _enemyData.AttackRange)
+            {
+                // Deal damage to player directly
+                PlayerView playerView = _player.GetComponent<PlayerView>();
+                if (playerView != null)
+                {
+                    playerView.TakeDamage(_enemyData.AttackDamage);
+                }
+            }
         }
         
-        void StopAttacking()
+        private void StopAttacking()
         {
             _isAttacking = false;
         }
         
-        void UpdateAnimator()
+        private void UpdateAnimator()
         {
             float currentSpeed = _navmeshAgent.velocity.magnitude;
             _animator.SetFloat(EnemyAnimationParameters.SPEED, currentSpeed);
         }
+
+#region ICharacterView implementations
+
+        public override void TakeDamage(float damage)
+        {
+            base.TakeDamage(damage);
+        }
         
         public override void Die()
         {
-            Debug.Log("Enemy died!");
-
             _animator.SetTrigger(EnemyAnimationParameters.DIE);
             _animator.SetBool(EnemyAnimationParameters.IS_DEAD, true);
             
@@ -180,6 +197,34 @@ namespace Com.Boombit.CaseStudy.Game.Views
             {
                 collider.enabled = false;
             }
+            
+            OnCharacterDied();
         }
+
+#endregion
+
+        public void Stop()
+        {
+            if (_navmeshAgent != null)
+            {
+                _navmeshAgent.ResetPath();
+                _navmeshAgent.velocity = Vector3.zero;
+                _navmeshAgent.enabled = false;
+            }
+            
+            StopAttacking();
+            
+            StopAllCoroutines();
+            
+            CancelInvoke(nameof(StopAttacking));
+            
+            if (_animator != null)
+            {
+                _animator.SetFloat(EnemyAnimationParameters.SPEED, 0f);
+            }
+            
+            this.enabled = false;
+        }
+
     }
 }

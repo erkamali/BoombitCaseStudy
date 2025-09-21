@@ -1,4 +1,5 @@
 using Com.Boombit.CaseStudy.Game.Data;
+using Com.Boombit.CaseStudy.Main.Data;
 
 namespace Com.Boombit.CaseStudy.Game.Utilities
 {
@@ -6,6 +7,10 @@ namespace Com.Boombit.CaseStudy.Game.Utilities
     {
         TimeManager TimeManager { get; }
         IGameData   GameData    { get; }
+
+        // Level related
+        PlayerData CreatePlayerData(PlayerConfig playerConfig);
+        EnemyData CreateEnemyData(EnemyConfig enemyConfig);
 
         // UI related
         void ShowMainMenuUI();
@@ -22,12 +27,10 @@ namespace Com.Boombit.CaseStudy.Game.Utilities
         // Game state related
         void EnableControls();
         void DisableControls();
-        void StartEnemySpawning();
-        void StopEnemySpawning();
         void StopAllEnemies();
 
-        void OnPlayerDied();
-        void OnEnemyKilled();
+        void OnCharacterTakeDamage(int characterId, float damage);
+        void OnCharacterDied(int characterId);
 
         // Time related
         void OnTimeUpdated(float currentTime, float normalizedTime);

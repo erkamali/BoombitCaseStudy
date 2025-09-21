@@ -18,12 +18,7 @@ namespace Com.Boombit.CaseStudy.Game.Utilities
         {
             _gameManager.ShowGameUI();
             
-            _gameManager.TimeManager.Init(180f);
-            _gameManager.TimeManager.StartTimer();
-            
             _gameManager.EnableControls();
-            
-            _gameManager.StartEnemySpawning();
             
             _gameManager.GameData.ResetCurrentLevelKillCount();
             
@@ -33,8 +28,6 @@ namespace Com.Boombit.CaseStudy.Game.Utilities
         public override void Exit(string toState)
         {
             _gameManager.DisableControls();
-            
-            _gameManager.StopEnemySpawning();
 
             _gameManager.TimeManager.StopTimer();
         }

@@ -6,6 +6,7 @@ namespace Com.Boombit.CaseStudy.Game.Data
     {
         //  MEMBERS
         //      Protected
+        protected int   id;
         protected float maxHealth;
         protected float currentHealth;
         protected float moveSpeed;
@@ -14,6 +15,7 @@ namespace Com.Boombit.CaseStudy.Game.Data
         protected float attackRange;
         
         //      Properties
+        public int   ID             { get { return id; } }
         public float MaxHealth      { get { return maxHealth; } }
         public float CurrentHealth  { get { return currentHealth; } }
         public float MoveSpeed      { get { return moveSpeed; } }
@@ -24,8 +26,9 @@ namespace Com.Boombit.CaseStudy.Game.Data
         public bool IsDead { get { return CurrentHealth <= 0; } }
         
         //  CONSTRUCTORS
-        public CharacterData(float maxHealth, float currentHealth, float moveSpeed, float rotationSpeed, float attackDamage, float attackRange)
+        public CharacterData(int id, float maxHealth, float currentHealth, float moveSpeed, float rotationSpeed, float attackDamage, float attackRange)
         {
+            this.id             = id;
             this.maxHealth      = maxHealth;
             this.currentHealth  = currentHealth;
             this.moveSpeed      = moveSpeed;
