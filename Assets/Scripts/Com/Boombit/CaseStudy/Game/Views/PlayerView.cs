@@ -76,11 +76,6 @@ namespace Com.Boombit.CaseStudy.Game.Views
             _rotationVector.x = Input.GetAxis("RightStickX");
             _rotationVector.y = Input.GetAxis("RightStickY");
 
-            if (_movementVector.magnitude > 0.01f || Mathf.Abs(_rotationVector.x) > 0.01f)
-    {
-        Debug.Log($"Movement: {_movementVector}, Rotation: {_rotationVector.x}, DeadZone: {_deadZone}");
-    }
-
             if (Mathf.Abs(_rotationVector.x) < 0.1f)
             {
                 if (Input.GetKey(KeyCode.Q))

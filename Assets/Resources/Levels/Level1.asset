@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Level1
   m_EditorClassIdentifier: 
   LevelName: Level 1
-  LevelDuration: 10
+  LevelDuration: 60
   LevelLayoutPrefab: {fileID: 6680850092766008720, guid: 49811c4cef33cc344bfdcf9a40aa5a35, type: 3}
   PlayerPrefab: {fileID: 9039574707117686181, guid: 2bebbf0c9d933ab40b33e133c286145f, type: 3}
   PlayerConfig: {fileID: 11400000, guid: edd365a250b26094c96da8bc99600d4b, type: 2}

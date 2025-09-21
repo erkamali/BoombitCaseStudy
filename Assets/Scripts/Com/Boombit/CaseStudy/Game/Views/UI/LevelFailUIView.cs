@@ -36,9 +36,11 @@ namespace Com.Boombit.CaseStudy.Game.Views
 
             KillShowTween();
 
-            Vector3 targetPos = _panel.localPosition;
-            Vector3 startPos = new Vector3(targetPos.x, -Screen.height * 0.6f, targetPos.z);
-            _panel.localPosition = startPos;
+            Canvas canvas = _panel.GetComponentInParent<Canvas>();
+            RectTransform canvasRect = canvas.GetComponent<RectTransform>();
+
+            Vector3 targetPos = Vector3.zero;
+            Vector3 startPos = new Vector3(0, -canvasRect.rect.height, 0);
 
             _showTween = _panel.DOLocalMove(targetPos, 0.6f)
                                .SetEase(Ease.OutBack, 1.7f)

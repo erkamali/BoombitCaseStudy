@@ -65,8 +65,23 @@ namespace Com.Boombit.CaseStudy.Game.Data
         
         public void LoadData()
         {
-            _totalKillCount = PlayerPrefs.GetInt(GameConstants.TOTAL_KILLS, 0);
-            _currentLevel   = PlayerPrefs.GetInt(GameConstants.CURRENT_LEVEL, 1);
+            if (PlayerPrefs.HasKey(GameConstants.TOTAL_KILLS))
+            {
+                _totalKillCount = PlayerPrefs.GetInt(GameConstants.TOTAL_KILLS);
+            }
+            else
+            {
+                _totalKillCount = 0;
+            }
+
+            if (PlayerPrefs.HasKey(GameConstants.CURRENT_LEVEL))
+            {
+                _currentLevel = PlayerPrefs.GetInt(GameConstants.CURRENT_LEVEL);
+            }
+            else
+            {
+                _currentLevel = 0;
+            }
             _currentLevelKillCount = 0;
         }
 

@@ -283,7 +283,10 @@ namespace Com.Boombit.CaseStudy.Game.Utilities
             {
                 EnemyData enemy = enemies.Current;
                 EnemyView enemyView = _levelManager.GetEnemy(enemy.ID);
-                enemyView.Stop();
+                if (enemyView != null)
+                {
+                    enemyView.Stop();
+                }
             }
         }
 
