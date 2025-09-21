@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe55345dcfe90154e95ad07ef3a81447, type: 3}
+  m_Name: Level2
+  m_EditorClassIdentifier: 
+  LevelName: Level 2
+  LevelDuration: 20
+  LevelLayoutPrefab: {fileID: 6680850092766008720, guid: dd80d1682f70d304585bcb4a9cde5739, type: 3}
+  PlayerPrefab: {fileID: 9039574707117686181, guid: 2bebbf0c9d933ab40b33e133c286145f, type: 3}
+  PlayerConfig: {fileID: 11400000, guid: edd365a250b26094c96da8bc99600d4b, type: 2}
+  EnemyTypes:
+  - EnemyPrefab: {fileID: 1749856396249671880, guid: 7187b4367d1449a41b98210bd6bd9bed, type: 3}
+    EnemyConfig: {fileID: 11400000, guid: 6fe1f3367938734469dc64e35e3627d1, type: 2}
+    SpawnWeight: 0.5
+  - EnemyPrefab: {fileID: 1749856396249671880, guid: 7187b4367d1449a41b98210bd6bd9bed, type: 3}
+    EnemyConfig: {fileID: 11400000, guid: 3b615ed4d0730264c8264b6cd2dc3b98, type: 2}
+    SpawnWeight: 0.5
+  MaxEnemies: 10
+  EnemySpawnInterval: 2

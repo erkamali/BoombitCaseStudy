@@ -15,11 +15,9 @@ namespace Com.Boombit.CaseStudy.Main.Data
         [Header("Player Setup")]
         public GameObject   PlayerPrefab;
         public PlayerConfig PlayerConfig;
-        public Transform    PlayerSpawnTransform;
         
         [Header("Enemy Configuration")]
         public EnemyTypeInfo[]  EnemyTypes;
-        public Transform[]      EnemySpawnPoints;
         public int              MaxEnemies = 20;
         public float            EnemySpawnInterval = 2f;
     }

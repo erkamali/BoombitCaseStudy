@@ -19,6 +19,8 @@ namespace Com.Boombit.CaseStudy.Main.Data
         private GameObject                  _currentLevelLayout;
         private IGameManager                _gameManager;
 
+        private Transform[] _enemySpawnTransforms;
+
         //      Properties
         public PlayerView   Player      { get { return _player; } }
         public int          EnemyCount  { get { return _enemies.Count; } }
@@ -27,6 +29,7 @@ namespace Com.Boombit.CaseStudy.Main.Data
         public void Initialize(IGameManager gameManager)
         {
             _enemies = new Dictionary<int, EnemyView>();
+            _enemySpawnTransforms = null;
             _gameManager = gameManager;
         }
 
@@ -43,6 +46,8 @@ namespace Com.Boombit.CaseStudy.Main.Data
             CreateLevelLayout(levelData);
             
             CreatePlayer(levelData);
+
+            _enemySpawnTransforms = GetEnemySpawnTransforms();
             
             CreateEnemies(levelData);
         }
@@ -91,7 +96,8 @@ namespace Com.Boombit.CaseStudy.Main.Data
                 return;
             }
             
-            if (levelData.PlayerSpawnTransform == null)
+            Transform playerSpawnTransform = GetPlayerSpawnTransform();
+            if (playerSpawnTransform == null)
             {
                 Debug.LogError("No player spawn transform found");
                 return;
@@ -99,8 +105,8 @@ namespace Com.Boombit.CaseStudy.Main.Data
             
             PlayerData playerData = _gameManager.CreatePlayerData(levelData.PlayerConfig);
             
-            Vector3     spawnPos    = levelData.PlayerSpawnTransform.position;
-            Quaternion  spawnRot    = levelData.PlayerSpawnTransform.rotation;
+            Vector3     spawnPos    = playerSpawnTransform.position;
+            Quaternion  spawnRot    = playerSpawnTransform.rotation;
             GameObject  playerObj   = Instantiate(levelData.PlayerPrefab, spawnPos, spawnRot);
             
             _player = playerObj.GetComponent<PlayerView>();
@@ -108,6 +114,17 @@ namespace Com.Boombit.CaseStudy.Main.Data
             {
                 _player.Initialize(playerData, _gameManager);
             }
+        }
+
+        private Transform GetPlayerSpawnTransform()
+        {
+            GameObject playerSpawn = GameObject.FindGameObjectWithTag("PlayerSpawn");
+            if (playerSpawn != null)
+            {
+                return playerSpawn.transform;
+            }
+
+            return null;
         }
 
         private void CreateEnemies(LevelData levelData)
@@ -133,9 +150,9 @@ namespace Com.Boombit.CaseStudy.Main.Data
                 return;
             }
             
-            EnemyData enemyData = _gameManager.CreateEnemyData(selectedEnemyType.EnemyConfig);
-            Vector3 spawnPos = GetRandomSpawnPosition(levelData);
-            GameObject enemyObj = Instantiate(selectedEnemyType.EnemyPrefab, spawnPos, Quaternion.identity);
+            EnemyData   enemyData = _gameManager.CreateEnemyData(selectedEnemyType.EnemyConfig);
+            Vector3     spawnPos  = GetRandomSpawnPosition();
+            GameObject  enemyObj  = Instantiate(selectedEnemyType.EnemyPrefab, spawnPos, Quaternion.identity);
             
             EnemyView enemyView = enemyObj.GetComponent<EnemyView>();
             if (enemyView != null && _player != null)
@@ -181,11 +198,12 @@ namespace Com.Boombit.CaseStudy.Main.Data
             return enemyTypes[0];
         }
 
-        private Vector3 GetRandomSpawnPosition(LevelData levelData)
+        private Vector3 GetRandomSpawnPosition()
         {
-            if (levelData.EnemySpawnPoints == null || levelData.EnemySpawnPoints.Length == 0)
+            if (_enemySpawnTransforms == null || _enemySpawnTransforms.Length == 0)
             {
-                // Fallback to random position
+                Debug.LogWarning("No enemy spawn transforms found, using random position");
+
                 float range = 10f;
                 return new Vector3(
                     Random.Range(-range, range),
@@ -194,8 +212,19 @@ namespace Com.Boombit.CaseStudy.Main.Data
                 );
             }
             
-            Transform spawnPoint = levelData.EnemySpawnPoints[Random.Range(0, levelData.EnemySpawnPoints.Length)];
+            Transform spawnPoint = _enemySpawnTransforms[Random.Range(0, _enemySpawnTransforms.Length)];
             return spawnPoint.position;
+        }
+
+        private Transform[] GetEnemySpawnTransforms()
+        {
+            GameObject[] enemySpawns = GameObject.FindGameObjectsWithTag("EnemySpawn");
+            Transform[]  transforms = new Transform[enemySpawns.Length];
+            for (int i = 0; i < enemySpawns.Length; i++)
+            {
+                transforms[i] = enemySpawns[i].transform;
+            }
+            return transforms;
         }
 
         private bool IsValidLevelIndex(int levelIndex)
